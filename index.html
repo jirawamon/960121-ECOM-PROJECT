@@ -4,10 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MONOFORM | Minimal Fashion</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="960121-ECOM-PROJECT\styles.css">
 </head>
 <body>
-  <div class="promo">Free shipping on orders over $75</div>
+  <div class="promo" role="status" aria-label="Current promotions">
+    <span>30% off new arrivals*</span>
+    <span class="promo-divider">|</span>
+    <span>Extra 20% off orders of $100+*</span>
+    <a href="#products">Women</a>
+    <a href="#products">Men</a>
+    <a href="#account">Details</a>
+  </div>
 
   <header class="site-header">
     <nav class="nav" aria-label="Primary navigation">
@@ -27,16 +34,17 @@
   <main>
     <section class="hero" id="new">
       <div class="hero-copy">
-        <p class="eyebrow">Spring capsule 2026</p>
-        <h1>Quiet form. Sharp essentials.</h1>
-        <p>Minimal wardrobe staples in crisp cotton, structured denim, soft rib, and monochrome layers made for everyday movement.</p>
+        <p class="eyebrow">Summer chapter 2026</p>
+        <h1>Vacation<br>Mode</h1>
+        <p>Everything you need for warm-weather dressing. Relaxed tops and voluminous denim built to stay cool in the heat.</p>
         <div class="hero-actions">
-          <a class="button" href="#products">Shop new arrivals</a>
-          <a class="button secondary" href="#essentials">Explore essentials</a>
+          <a class="button" href="#products">Shop women</a>
+          <a class="button secondary" href="#products">Shop men</a>
         </div>
       </div>
       <div class="hero-image" aria-label="Black and white fashion editorial">
-        <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1400&q=85" alt="Minimal black and white fashion model editorial">
+        <img class="hero-panel panel-left" src="https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=1400&q=85" alt="Summer fashion portrait on beach">
+        <img class="hero-panel panel-right" src="https://images.unsplash.com/photo-1464863979621-258859e62245?auto=format&fit=crop&w=1400&q=85" alt="Street style summer outfit portrait">
         <span>Mono collection</span>
       </div>
     </section>
@@ -186,7 +194,7 @@
   </main>
 
   <footer>
-    <span>MONOFORM 2026</span>
+    <span>thekorachan 2077</span>
     <span>Shipping / Returns / Privacy / Contact</span>
   </footer>
 
@@ -194,7 +202,9 @@
     const bagCount = document.querySelector("#bag-count");
     const addButtons = document.querySelectorAll(".add-button");
     const signup = document.querySelector(".signup");
+    const siteHeader = document.querySelector(".site-header");
     let count = 0;
+    let lastScrollY = window.scrollY;
 
     addButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -211,6 +221,25 @@
       event.preventDefault();
       signup.querySelector("button").textContent = "Joined";
     });
+
+    const updateHeaderVisibility = () => {
+      if (!siteHeader) {
+        return;
+      }
+
+      const currentScrollY = window.scrollY;
+      const isScrollingDown = currentScrollY > lastScrollY;
+
+      if (isScrollingDown && currentScrollY > 80) {
+        siteHeader.classList.add("is-hidden");
+      } else {
+        siteHeader.classList.remove("is-hidden");
+      }
+
+      lastScrollY = Math.max(currentScrollY, 0);
+    };
+
+    window.addEventListener("scroll", updateHeaderVisibility, { passive: true });
   </script>
 </body>
 </html>
