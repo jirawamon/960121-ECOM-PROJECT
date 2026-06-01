@@ -69,8 +69,8 @@
     window.addEventListener("scroll", updateHeaderVisibility, { passive: true });
   };
 
-  const init = () => {
-    window.productService.renderProducts();
+  const init = async () => {
+    await window.productService.loadProducts();
     window.cartService.updateBagCount();
     document.addEventListener("click", handleProductClick);
     setupSignupForm();

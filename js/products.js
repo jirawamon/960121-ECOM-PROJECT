@@ -34,7 +34,7 @@
   const normalizeProduct = (product, index) => {
     const name = product.name || `Product ${index + 1}`;
     const id = product.id || product.slug || slugify(name) || `product-${index + 1}`;
-    const variant = product.category || product.description || "";
+    const variant = product.variant || product.category || product.description || "";
     const priceText = product.priceText || formatPrice(product);
 
     return {
@@ -100,6 +100,14 @@
       getProductFromCard(card, index)
     );
 
+  const updateProductCount = (products) => {
+    const count = document.querySelector("#products-count");
+
+    if (count) {
+      count.textContent = `${products.length} items`;
+    }
+  };
+
   const findCardProduct = (button) => {
     const card = button.closest(".product-card");
 
@@ -111,42 +119,42 @@
     return getProductFromCard(card, cards.indexOf(card));
   };
 
+  const renderProducts = (products) => {
+    const grid = document.querySelector(".product-grid");
+
+    if (!grid || !Array.isArray(products) || !products.length) {
+      return false;
+    }
+
+    grid.innerHTML = products.map(createProductCard).join("");
+    updateProductCount(products);
+
+    return true;
+  };
+
   const loadProducts = async () => {
     if (!window.api || !window.api.getProducts) {
-      return getProductsFromDom();
+      const domProducts = getProductsFromDom();
+      updateProductCount(domProducts);
+      return domProducts;
     }
 
     try {
       const products = await window.api.getProducts();
-      return Array.isArray(products) && products.length ? products : getProductsFromDom();
-    } catch (error) {
-      return getProductsFromDom();
-    }
-  };
 
-  const renderProducts = async () => {
-    const grid = document.querySelector("#products-grid");
-    const count = document.querySelector("#products-count");
-
-    if (!grid) {
-      return;
-    }
-
-    const products = await loadProducts();
-
-    if (!products.length) {
-      grid.innerHTML = '<p class="products-empty">No products available.</p>';
-      if (count) {
-        count.textContent = "0 items";
+      if (Array.isArray(products) && products.length) {
+        renderProducts(products);
+        return products.map(normalizeProduct);
       }
-      return;
+    } catch (error) {
+      const domProducts = getProductsFromDom();
+      updateProductCount(domProducts);
+      return domProducts;
     }
 
-    grid.innerHTML = products.map(createProductCard).join("");
-
-    if (count) {
-      count.textContent = `${products.length} items`;
-    }
+    const domProducts = getProductsFromDom();
+    updateProductCount(domProducts);
+    return domProducts;
   };
 
   window.productService = {
