@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Men's Clothing + Accessories | MONOFORM</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="promo" role="status" aria-label="Current promotions">
+    <span>30% off new arrivals*</span>
+    <span class="promo-divider">|</span>
+    <span>Extra 20% off orders of $100+*</span>
+    <a href="products.html">Women</a>
+    <a href="products.html">Men</a>
+    <a href="products.html">Details</a>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="products.html">New</a>
+      <a href="products.html">Women</a>
+      <a href="products.html">Men</a>
+      <a href="products.html">Underwear</a>
+      <a href="products.html">Collection</a>
+      <a href="index.html">Home</a>
+      <a href="products.html">Sale</a>
+    </nav>
+    <a class="brand" href="index.html">MONOFORM</a>
+    <div class="actions">
+      <a href="products.html">Search</a>
+      <a href="products.html">Account</a>
+      <button class="bag-button" type="button">Bag <span id="bag-count">0</span></button>
+    </div>
+  </header>
+
+  <main class="catalog-page" id="products">
+    <section class="catalog-heading" aria-labelledby="catalog-title">
+      <div>
+        <h1 id="catalog-title">Men's Clothing + Accessories</h1>
+        <nav class="catalog-tabs" aria-label="Product departments">
+          <a href="products.html">Tops</a>
+          <a href="products.html">Bottoms</a>
+          <a href="products.html">Underwear</a>
+          <a href="products.html">Outerwear</a>
+          <a href="products.html">Denim</a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="catalog-controls" aria-label="Catalog controls">
+      <div class="filter-pills" aria-label="Filters">
+        <button type="button" data-filter-open>Category <span aria-hidden="true">⌄</span></button>
+        <button type="button" data-filter-open>Price <span aria-hidden="true">⌄</span></button>
+        <button type="button" data-filter-open>Color <span aria-hidden="true">⌄</span></button>
+        <button type="button" data-filter-open>Size <span aria-hidden="true">⌄</span></button>
+        <button type="button" data-filter-open>Collection <span aria-hidden="true">⌄</span></button>
+        <button type="button" data-filter-open>All Filters <span aria-hidden="true">☰</span></button>
+      </div>
+      <div class="catalog-sort">
+        <span id="products-count">Loading items</span>
+        <span aria-hidden="true">|</span>
+        <label for="catalog-sort-select">Sort By</label>
+        <select id="catalog-sort-select" data-product-sort>
+          <option value="featured">Featured</option>
+          <option value="newest">Newest</option>
+          <option value="price-low">Price Low To High</option>
+          <option value="price-high">Price High To Low</option>
+          <option value="top-rated">Top Rated</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="catalog-results" aria-label="Product results">
+      <div class="product-grid catalog-grid" id="products-grid" aria-live="polite"></div>
+      <div class="catalog-loader" data-catalog-loader hidden>Loading more styles...</div>
+    </section>
+
+    <section class="catalog-copy" id="details">
+      <h2>Men's Fashion and Accessories</h2>
+      <p>Discover modern clothing and timeless accessories with clean silhouettes, relaxed proportions, and everyday textures. Shop easy layers, summer knits, denim, shirts, and refined basics designed for repeated wear.</p>
+      <p>Build a sharp warm-weather wardrobe with lightweight cotton, denim, smooth tees, and versatile outerwear. Finish each look with bags, eyewear, and small accessories that keep the styling simple and polished.</p>
+      <div class="explore-tags" aria-label="Explore more">
+        <a href="products.html">Shirts</a>
+        <a href="products.html">New Arrivals</a>
+        <a href="products.html">Sweaters</a>
+        <a href="products.html">Underwear</a>
+        <a href="products.html">Bags</a>
+        <a href="products.html">Jeans</a>
+        <a href="products.html">Jackets</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>thekorachan 2077</span>
+    <span>Shipping / Returns / Privacy / Contact</span>
+  </footer>
+
+  <button class="bag-overlay" type="button" data-bag-close aria-label="Close bag panel"></button>
+  <button class="filter-overlay" type="button" data-filter-close aria-label="Close filter panel"></button>
+
+  <aside class="filter-drawer" id="filter-drawer" role="dialog" aria-modal="true" aria-labelledby="filter-drawer-title" aria-hidden="true" tabindex="-1">
+    <div class="filter-drawer-header">
+      <h2 id="filter-drawer-title">Filter</h2>
+      <button type="button" data-filter-close aria-label="Close filter panel">×</button>
+    </div>
+    <div class="filter-groups">
+      <button type="button">Category <span aria-hidden="true">⌄</span></button>
+      <button type="button">Price <span aria-hidden="true">⌄</span></button>
+      <button type="button">Color <span aria-hidden="true">⌄</span></button>
+      <button type="button">Size <span aria-hidden="true">⌄</span></button>
+      <button type="button">Collection <span aria-hidden="true">⌄</span></button>
+    </div>
+    <div class="filter-drawer-footer">
+      <button type="button" data-filter-close>Clear All</button>
+      <button type="button" data-filter-close>View <span data-filter-count>Items</span></button>
+    </div>
+  </aside>
+
+  <aside class="bag-drawer" id="bag-drawer" role="dialog" aria-modal="true" aria-labelledby="bag-drawer-title" aria-hidden="true" tabindex="-1">
+    <div class="bag-drawer-header">
+      <div>
+        <p>Added to bag</p>
+        <h2 id="bag-drawer-title">Shopping Bag <span id="bag-drawer-count">(0 items)</span></h2>
+      </div>
+      <button class="bag-drawer-close" type="button" data-bag-close aria-label="Close bag panel">x</button>
+    </div>
+    <div class="bag-drawer-body">
+      <p class="bag-drawer-empty" id="bag-drawer-empty">Your bag is currently empty.</p>
+      <div class="bag-drawer-items" id="bag-drawer-items" aria-live="polite"></div>
+    </div>
+    <div class="bag-drawer-footer">
+      <div class="bag-drawer-total">
+        <span>Estimated Total</span>
+        <strong id="bag-drawer-subtotal">$0.00</strong>
+      </div>
+      <button class="bag-drawer-checkout" type="button" data-bag-checkout>Continue to Checkout</button>
+      <button class="bag-drawer-secondary" type="button" data-bag-close>Keep Shopping</button>
+    </div>
+  </aside>
+
+  <script src="js/cart.js"></script>
+  <script src="js/catalog.js?v=20260601b"></script>
+</body>
+</html>

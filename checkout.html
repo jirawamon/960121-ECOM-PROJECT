@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Bag | MONOFORM</title>
+  <link rel="stylesheet" href="960121-ECOM-PROJECT\styles.css">
+</head>
+<body class="checkout-page">
+  <header class="checkout-header">
+    <a class="checkout-brand" href="index.html">MONOFORM</a>
+    <nav class="checkout-nav" aria-label="Checkout navigation">
+      <a href="products.html">New</a>
+      <a href="products.html">Women</a>
+      <a href="products.html">Men</a>
+      <a href="products.html">Essentials</a>
+      <a href="products.html">Denim</a>
+      <a href="products.html">Sale</a>
+    </nav>
+    <div class="checkout-icons" aria-label="Checkout tools">
+      <a href="products.html" aria-label="Search">Search</a>
+      <a href="index.html" aria-label="Account">Account</a>
+      <span aria-label="Bag item count">Bag <span id="bag-count">0</span></span>
+    </div>
+  </header>
+
+  <main class="bag-page-shell">
+    <section class="bag-layout" aria-label="Shopping bag and order summary">
+      <div class="bag-main">
+        <div class="bag-title-row">
+          <div>
+            <h1>Shopping Bag <span id="checkout-item-count">(0 items)</span></h1>
+            <p><strong>Items in bag are not reserved</strong> and may sell out. Order now.</p>
+          </div>
+          <strong id="checkout-grand-total">$0.00</strong>
+        </div>
+
+        <div class="bag-items" id="checkout-items" aria-live="polite"></div>
+
+        <div class="bag-gift-note">Gift options available in checkout</div>
+      </div>
+
+      <aside class="summary-panel" aria-label="Order summary">
+        <div class="summary-rewards">
+          <h2>My Monoform Rewards</h2>
+          <p>You could earn <strong id="reward-points">0 points</strong> on this order.</p>
+          <a href="index.html">Sign in or Join Monoform Rewards now.</a>
+        </div>
+
+        <div class="summary-body">
+          <h2>Order Summary <span id="summary-count">(0 items)</span></h2>
+          <dl class="summary-lines">
+            <div>
+              <dt>Subtotal</dt>
+              <dd id="summary-subtotal">$0.00</dd>
+            </div>
+            <div>
+              <dt>Tax</dt>
+              <dd>Calculated in checkout</dd>
+            </div>
+            <div>
+              <dt>Standard Shipping</dt>
+              <dd id="summary-shipping">$0.00</dd>
+            </div>
+          </dl>
+
+          <button class="promo-code-row" type="button" data-promo-code>Have a promo code? <span>⌄</span></button>
+
+          <div class="summary-total-row">
+            <span>Estimated Total</span>
+            <strong id="summary-total">$0.00</strong>
+          </div>
+          <p class="installments">Choose a payment method to complete your order securely.</p>
+
+          <div class="alternate-checkout">Payment methods</div>
+          <div class="wallet-row" aria-label="Alternative payment options">
+            <button type="button" data-payment-method="Credit / Debit Card" aria-pressed="true" class="is-selected">
+              <span class="payment-logo payment-card-logos" aria-hidden="true">
+                <img class="visa-logo" src="https://cdn.worldvectorlogo.com/logos/visa-10.svg" alt="">
+                <img class="mastercard-logo" src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="">
+              </span>
+              <span>Credit / Debit Card</span>
+            </button>
+            <button type="button" data-payment-method="Apple Pay" aria-pressed="false">
+              <span class="payment-logo" aria-hidden="true"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" alt=""></span>
+              <span>Apple Pay</span>
+            </button>
+            <button type="button" data-payment-method="Google Pay" aria-pressed="false">
+              <span class="payment-logo google-pay-logo" aria-hidden="true"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt=""></span>
+              <span>Google Pay</span>
+            </button>
+            <button type="button" data-payment-method="Weixin Pay" aria-pressed="false">
+              <span class="payment-logo" aria-hidden="true"><img src="https://cdn.worldvectorlogo.com/logos/wechat-pay.svg" alt=""></span>
+              <span>Weixin Pay</span>
+            </button>
+            <button type="button" data-payment-method="PromptPay" aria-pressed="false">
+              <span class="payment-logo payment-logo-wide" aria-hidden="true"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c5/PromptPay-logo.png" alt=""></span>
+              <span>PromptPay</span>
+            </button>
+          </div>
+
+          <form class="checkout-payment-form" id="checkout-payment-form" novalidate>
+            <section class="checkout-form-section" aria-labelledby="contact-info-title">
+              <h3 id="contact-info-title">Contact Information</h3>
+              <label class="checkout-field">
+                <span>Email Address*</span>
+                <input type="email" name="email" autocomplete="email" required>
+                <small class="checkout-field-error" data-error-for="email"></small>
+              </label>
+                <div class="checkout-phone-row">
+                  <div class="checkout-field checkout-country-field">
+                    <span>Country Code*</span>
+                    <div class="country-selector" data-country-selector>
+                      <button class="country-selector-button" type="button" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-controls="country-selector-list" data-country-toggle>
+                        <span data-country-selected>🇹🇭 +66 Thailand</span>
+                        <span aria-hidden="true">▼</span>
+                      </button>
+                      <div class="country-selector-menu" data-country-menu>
+                        <input class="country-selector-search" type="search" autocomplete="off" spellcheck="false" aria-label="Search country" placeholder="Search country or code" data-country-search>
+                        <div class="country-selector-list" id="country-selector-list" role="listbox" data-country-list></div>
+                      </div>
+                    </div>
+                    <input type="hidden" name="phoneCountryIso" value="TH">
+                    <input type="hidden" name="phoneDialCode" value="+66">
+                    <input type="hidden" name="phoneFullNumber" value="">
+                    <small class="checkout-field-error" data-error-for="phoneCountryIso"></small>
+                  </div>
+                  <label class="checkout-field">
+                    <span>Phone Number*</span>
+                    <input type="tel" name="phone" autocomplete="tel-national" inputmode="numeric" required>
+                    <small class="checkout-field-error" data-error-for="phone"></small>
+                  </label>
+                </div>
+            </section>
+
+            <section class="checkout-form-section" aria-labelledby="billing-address-title">
+              <h3 id="billing-address-title">Billing Address</h3>
+              <div class="checkout-form-grid">
+                <label class="checkout-field">
+                  <span>First Name*</span>
+                  <input type="text" name="firstName" autocomplete="given-name" required>
+                  <small class="checkout-field-error" data-error-for="firstName"></small>
+                </label>
+                <label class="checkout-field">
+                  <span>Last Name*</span>
+                  <input type="text" name="lastName" autocomplete="family-name" required>
+                  <small class="checkout-field-error" data-error-for="lastName"></small>
+                </label>
+              </div>
+              <label class="checkout-field">
+                <span>Address Line 1*</span>
+                <input type="text" name="address1" autocomplete="address-line1" required>
+                <small class="checkout-field-error" data-error-for="address1"></small>
+              </label>
+              <label class="checkout-field">
+                <span>Address Line 2</span>
+                <input type="text" name="address2" autocomplete="address-line2">
+                <small class="checkout-field-error" data-error-for="address2"></small>
+              </label>
+              <div class="checkout-form-grid">
+                <label class="checkout-field">
+                  <span>City*</span>
+                  <input type="text" name="city" autocomplete="address-level2" required>
+                  <small class="checkout-field-error" data-error-for="city"></small>
+                </label>
+                <label class="checkout-field">
+                  <span>State / Province*</span>
+                  <input type="text" name="state" autocomplete="address-level1" required>
+                  <small class="checkout-field-error" data-error-for="state"></small>
+                </label>
+              </div>
+              <div class="checkout-form-grid">
+                <label class="checkout-field">
+                  <span>Postal Code*</span>
+                  <input type="text" name="postalCode" autocomplete="postal-code" required>
+                  <small class="checkout-field-error" data-error-for="postalCode"></small>
+                </label>
+                <label class="checkout-field">
+                  <span>Country*</span>
+                  <input type="text" name="country" autocomplete="country-name" value="Thailand" required>
+                  <small class="checkout-field-error" data-error-for="country"></small>
+                </label>
+              </div>
+            </section>
+
+            <section class="checkout-form-section" aria-labelledby="card-payment-title" data-payment-panel="Credit / Debit Card">
+              <h3 id="card-payment-title">Credit / Debit Card</h3>
+              <label class="checkout-field">
+                <span>Card Number*</span>
+                <input type="text" name="cardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="24" required>
+                <small class="checkout-field-error" data-error-for="cardNumber"></small>
+              </label>
+              <div class="card-network-line" id="card-network-line" aria-live="polite">Visa, Mastercard, Amex, UnionPay, JCB, Discover</div>
+              <label class="checkout-field">
+                <span>Cardholder Name*</span>
+                <input type="text" name="cardholderName" autocomplete="cc-name" required>
+                <small class="checkout-field-error" data-error-for="cardholderName"></small>
+              </label>
+              <div class="checkout-form-grid card-detail-grid">
+                <label class="checkout-field">
+                  <span>Expiry Date*</span>
+                  <input type="text" name="expiry" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY" required>
+                  <small class="checkout-field-error" data-error-for="expiry"></small>
+                </label>
+                <label class="checkout-field">
+                  <span>CVV*</span>
+                  <input type="text" name="cvv" inputmode="numeric" autocomplete="cc-csc" maxlength="4" required>
+                  <small class="checkout-field-error" data-error-for="cvv"></small>
+                </label>
+              </div>
+            </section>
+
+            <section class="checkout-form-section alternate-payment-panel" aria-labelledby="alternate-payment-title" data-alternate-payment-panel hidden>
+              <h3 id="alternate-payment-title" data-alternate-payment-title>Apple Pay</h3>
+              <div class="alternate-payment-box">
+                <span class="alternate-payment-logo" data-alternate-payment-logo aria-hidden="true"></span>
+                <p data-alternate-payment-message>Use the selected payment method to complete your order securely.</p>
+              </div>
+              <div class="promptpay-qr-panel" data-promptpay-panel hidden>
+                <div class="promptpay-qr-frame">
+                  <img src="" alt="PromptPay QR code" data-promptpay-qr>
+                </div>
+                <div class="promptpay-payment-meta">
+                  <strong data-promptpay-amount></strong>
+                  <span data-promptpay-status></span>
+                  <span data-promptpay-expires></span>
+                </div>
+                <p data-promptpay-note>Scan the QR code with your banking app, then wait for payment confirmation.</p>
+              </div>
+            </section>
+          </form>
+
+          <button class="short-checkout" type="button" data-continue-checkout disabled>Place Order</button>
+          <p class="checkout-action-status" id="checkout-action-status" aria-live="polite"></p>
+          <p class="summary-smallprint">My Monoform Rewards members enjoy free returns.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="recommendations" aria-label="Before you go">
+      <div class="recommendation-heading">
+        <h2>Before You Go</h2>
+        <div>
+          <button type="button" aria-label="Previous recommendations" data-recommendation-prev>‹</button>
+          <button type="button" aria-label="Next recommendations" data-recommendation-next>›</button>
+        </div>
+      </div>
+      <div class="recommendation-track">
+        <article data-recommendation-item data-name="Embroidered 1990 logo relaxed tee" data-price="53.30" data-variant="Core / Regular" data-image="https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=700&q=85" tabindex="0" role="button" aria-label="Add Embroidered 1990 logo relaxed tee to bag">
+          <img src="https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=700&q=85" alt="Embroidered logo relaxed tee">
+          <h3>Embroidered 1990 logo relaxed tee</h3>
+          <p><span>$79.00</span> $53.30 <strong>30% off</strong></p>
+        </article>
+        <article data-recommendation-item data-name="Embroidered logo relaxed tee" data-price="53.30" data-variant="White / Regular" data-image="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=700&q=85" tabindex="0" role="button" aria-label="Add Embroidered logo relaxed tee to bag">
+          <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=700&q=85" alt="White logo relaxed tee">
+          <h3>Embroidered logo relaxed tee</h3>
+          <p><span>$79.00</span> $53.30 <strong>30% off</strong></p>
+        </article>
+        <article data-recommendation-item data-name="Signature logo relaxed tee" data-price="53.30" data-variant="Black / Regular" data-image="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=700&q=85" tabindex="0" role="button" aria-label="Add Signature logo relaxed tee to bag">
+          <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=700&q=85" alt="Black logo relaxed tee">
+          <h3>Signature logo relaxed tee</h3>
+          <p><span>$79.00</span> $53.30 <strong>30% off</strong></p>
+        </article>
+        <article data-recommendation-item data-name="Monologo graphic relaxed shirt" data-price="53.30" data-variant="Core / Regular" data-image="https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=700&q=85" tabindex="0" role="button" aria-label="Add Monologo graphic relaxed shirt to bag">
+          <img src="https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=700&q=85" alt="Monologo graphic relaxed shirt">
+          <h3>Monologo graphic relaxed shirt</h3>
+          <p><span>$79.00</span> $53.30 <strong>30% off</strong></p>
+        </article>
+        <article data-recommendation-item data-name="Logo graphic relaxed shirt" data-price="47.60" data-variant="Pink / Regular" data-image="https://images.unsplash.com/photo-1507680434567-5739c80be1ac?auto=format&fit=crop&w=700&q=85" tabindex="0" role="button" aria-label="Add Logo graphic relaxed shirt to bag">
+          <img src="https://images.unsplash.com/photo-1507680434567-5739c80be1ac?auto=format&fit=crop&w=700&q=85" alt="Pink logo relaxed shirt">
+          <h3>Logo graphic relaxed shirt</h3>
+          <p><span>$68.00</span> $47.60 <strong>30% off</strong></p>
+        </article>
+        <article data-recommendation-item data-name="Logo easy tee" data-price="34.30" data-variant="Red / Regular" data-image="https://images.unsplash.com/photo-1506629905607-d9c297d22d7a?auto=format&fit=crop&w=700&q=85" tabindex="0" role="button" aria-label="Add Logo easy tee to bag">
+          <img src="https://images.unsplash.com/photo-1506629905607-d9c297d22d7a?auto=format&fit=crop&w=700&q=85" alt="Red logo easy tee">
+          <h3>Logo easy tee</h3>
+          <p><span>$49.00</span> $34.30 <strong>30% off</strong></p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="checkout-footer">
+    <div>
+      <h2>Promotions</h2>
+      <a href="index.html">Gift Cards</a>
+      <a href="index.html">Stores</a>
+      <a href="index.html">Monoform Rewards</a>
+      <a href="index.html">Student and Service Discount</a>
+    </div>
+    <div>
+      <h2>Help</h2>
+      <a href="index.html">Customer Service</a>
+      <a href="index.html">FAQs</a>
+      <a href="index.html">Contact Us</a>
+      <a href="index.html">Shipping</a>
+      <a href="index.html">Returns</a>
+    </div>
+    <div>
+      <h2>About</h2>
+      <a href="index.html">About Monoform</a>
+      <a href="index.html">Careers</a>
+      <a href="index.html">Privacy Commitment</a>
+      <a href="index.html">Sustainability</a>
+    </div>
+    <div>
+      <h2>Explore</h2>
+      <a href="products.html">Underwear Guide</a>
+      <a href="products.html">Denim Fit Guide</a>
+      <a href="products.html">#MONOFORM</a>
+      <a href="products.html">Re-Monoform</a>
+    </div>
+    <div class="footer-legal">
+      <strong>MONOFORM</strong>
+      <span>Privacy Policy / Terms & Conditions / Accessibility / United States</span>
+    </div>
+  </footer>
+
+  <script src="js/cart.js"></script>
+  <script src="js/checkout-page.js"></script>
+</body>
+</html>

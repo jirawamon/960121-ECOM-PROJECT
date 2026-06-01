@@ -21,6 +21,16 @@
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
 
+  const getImageUrl = (product) => {
+    const image = product.image_url || product.image || "";
+
+    if (!image || image === "xxx") {
+      return "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=900&q=85";
+    }
+
+    return image;
+  };
+
   const formatPrice = (product) => {
     const price = Number(product.price);
 
@@ -43,7 +53,7 @@
       variant,
       price: Number(product.price) || normalizePrice(priceText),
       priceText,
-      image: product.image_url || product.image || "",
+      image: getImageUrl(product),
       quantity: 1,
     };
   };
