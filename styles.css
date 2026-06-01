@@ -471,14 +471,40 @@ h2 {
   font-weight: 600;
 }
 
-.filter-pills button span,
+.filter-pills button:not(:last-child) span {
+  width: 10px;
+  height: 10px;
+  overflow: hidden;
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+}
+
+.filter-pills button:not(:last-child) span::before {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  margin: 0 auto;
+  border-right: 1.5px solid #111111;
+  border-bottom: 1.5px solid #111111;
+  transform: translateY(-1px) rotate(45deg);
+}
+
+.filter-pills button:last-child span {
+  display: inline-grid;
+  width: 14px;
+  height: 14px;
+  place-items: center;
+  line-height: 1;
+}
+
 .filter-groups button span {
   display: inline-grid;
   width: 14px;
   height: 14px;
   place-items: center;
   line-height: 1;
-  transform: translateY(-1px);
 }
 
 .catalog-sort {
