@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const mysql = require("mysql2/promise");
 const path = require("path");
+const crypto = require("crypto");
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -17,6 +18,20 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 const promptPayPhone = "0931498129";
+
+const createAuthToken = (userId) => {
+  const randomPart = crypto.randomBytes(24).toString("hex");
+  return `${userId}.${randomPart}`;
+};
+
+const formatUser = (user) => ({
+  id: user.user_id,
+  firstName: user.first_name,
+  lastName: user.last_name,
+  email: user.email,
+});
+
+const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
 
 const getPromptPayAmountPath = (amount) => {
   const baht = amount / 100;
@@ -63,6 +78,78 @@ app.get("/api/products", async (req, res) => {
   } catch (error) {
     console.error("Failed to load products:", error);
     res.status(500).json({ message: "Failed to load products" });
+  }
+});
+
+app.post("/api/register", async (req, res) => {
+  try {
+    const firstName = String(req.body.firstName || "").trim();
+    const lastName = String(req.body.lastName || "").trim();
+    const email = normalizeEmail(req.body.email);
+    const password = String(req.body.password || "");
+
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({ message: "Please fill in all required fields." });
+    }
+
+    const [existingUsers] = await pool.query(
+      "SELECT user_id FROM `User_account` WHERE email = ? LIMIT 1",
+      [email]
+    );
+
+    if (existingUsers.length) {
+      return res.status(409).json({ message: "This email is already registered." });
+    }
+
+    const [result] = await pool.query(
+      "INSERT INTO `User_account` (first_name, last_name, email, password) VALUES (?, ?, ?, ?)",
+      [firstName, lastName, email, password]
+    );
+
+    const user = {
+      user_id: result.insertId,
+      first_name: firstName,
+      last_name: lastName,
+      email,
+    };
+
+    res.status(201).json({
+      success: true,
+      user: formatUser(user),
+      token: createAuthToken(user.user_id),
+    });
+  } catch (error) {
+    console.error("Failed to register:", error);
+    res.status(500).json({ message: "Failed to create account" });
+  }
+});
+
+app.post("/api/login", async (req, res) => {
+  try {
+    const email = normalizeEmail(req.body.email);
+    const password = String(req.body.password || "");
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Please enter email and password." });
+    }
+
+    const [users] = await pool.query(
+      "SELECT user_id, first_name, last_name, email FROM `User_account` WHERE email = ? AND password = ? LIMIT 1",
+      [email, password]
+    );
+
+    if (!users.length) {
+      return res.status(401).json({ message: "Invalid email or password." });
+    }
+
+    res.json({
+      success: true,
+      user: formatUser(users[0]),
+      token: createAuthToken(users[0].user_id),
+    });
+  } catch (error) {
+    console.error("Failed to login:", error);
+    res.status(500).json({ message: "Failed to login" });
   }
 });
 

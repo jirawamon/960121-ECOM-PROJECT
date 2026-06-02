@@ -111,3 +111,46 @@ Current note:
 - The API connection works.
 - The database currently has product data.
 - Product images need real `image_url` values in Railway to display correctly.
+
+### 02/06/2026
+
+What was done:
+
+- Added backend API routes for the Login and Sign up system.
+- Added `POST /api/register` for creating a new user account.
+- Added `POST /api/login` for checking user email and password.
+- Connected the Sign up form input from the UI to the backend API.
+- Inserted new account data into the Railway MySQL `User_account` table.
+- Checked for duplicate email before creating a new account.
+- Returned user data and a simple login token after successful register/login.
+- Updated the frontend form submit logic in `js/app.js` to call the real API instead of showing only demo success text.
+- Added loading, success, and error messages for the account form.
+
+Database table used:
+
+```txt
+User_account
+```
+
+Columns used:
+
+```txt
+user_id
+first_name
+last_name
+email
+password
+```
+
+API endpoints added:
+
+```txt
+POST /api/register
+POST /api/login
+```
+
+Current note:
+
+- The Login and Sign up system now uses backend SQL CRUD operations.
+- Passwords are currently stored as plain text for simple classroom CRUD testing.
+- For real production use, passwords should be changed to password hashes with bcrypt.

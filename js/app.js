@@ -140,23 +140,66 @@
     });
 
     forms.forEach((form) => {
-      form.addEventListener("submit", (event) => {
+      form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const status = form.querySelector(".account-status");
         const submitButton = form.querySelector(".account-submit");
-        const successMessage = form.dataset.authForm === "signin"
-          ? "Welcome back. You are signed in."
-          : "Account created. Welcome to Monoform Rewards.";
+        const originalText = submitButton ? submitButton.textContent : "";
+        const formData = new FormData(form);
+        const isSignin = form.dataset.authForm === "signin";
 
         if (submitButton) {
-          submitButton.textContent = form.dataset.authForm === "signin" ? "Signed in" : "Account created";
+          submitButton.disabled = true;
+          submitButton.textContent = isSignin ? "Signing in..." : "Creating account...";
         }
 
         if (status) {
-          status.textContent = successMessage;
+          status.textContent = "";
           status.classList.remove("is-error");
-          status.classList.add("is-success");
+          status.classList.remove("is-success");
+        }
+
+        try {
+          if (isSignin) {
+            await window.authService.login({
+              email: formData.get("email"),
+              password: formData.get("password"),
+            });
+          } else {
+            await window.authService.register({
+              firstName: formData.get("firstName"),
+              lastName: formData.get("lastName"),
+              email: formData.get("email"),
+              password: formData.get("password"),
+            });
+          }
+
+          if (submitButton) {
+            submitButton.textContent = isSignin ? "Signed in" : "Account created";
+          }
+
+          if (status) {
+            status.textContent = isSignin
+              ? "Welcome back. You are signed in."
+              : "Account created. Welcome to Monoform Rewards.";
+            status.classList.remove("is-error");
+            status.classList.add("is-success");
+          }
+        } catch (error) {
+          if (submitButton) {
+            submitButton.textContent = originalText;
+          }
+
+          if (status) {
+            status.textContent = error.message || "Something went wrong. Please try again.";
+            status.classList.remove("is-success");
+            status.classList.add("is-error");
+          }
+        } finally {
+          if (submitButton) {
+            submitButton.disabled = false;
+          }
         }
       });
     });
