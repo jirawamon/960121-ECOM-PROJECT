@@ -49,6 +49,10 @@
     </section>
 
     <section class="catalog-controls" aria-label="Catalog controls">
+      <label class="catalog-search">
+        <span>Search</span>
+        <input type="search" name="keyword" placeholder="Search products" data-catalog-filter="keyword" autocomplete="off">
+      </label>
       <div class="filter-pills" aria-label="Filters">
         <button type="button" data-filter-open>Category <span aria-hidden="true">⌄</span></button>
         <button type="button" data-filter-open>Price <span aria-hidden="true">⌄</span></button>
@@ -106,6 +110,24 @@
       <button type="button" data-filter-close aria-label="Close filter panel">×</button>
     </div>
     <div class="filter-groups">
+      <label>
+        Category
+        <select data-catalog-filter="category">
+          <option value="">All categories</option>
+          <option value="Men">Men</option>
+          <option value="shirts">Shirts</option>
+          <option value="denim">Denim</option>
+          <option value="accessories">Accessories</option>
+        </select>
+      </label>
+      <label>
+        Min price
+        <input type="number" min="0" step="1" placeholder="0" data-catalog-filter="minPrice">
+      </label>
+      <label>
+        Max price
+        <input type="number" min="0" step="1" placeholder="150" data-catalog-filter="maxPrice">
+      </label>
       <button type="button">Category <span aria-hidden="true">⌄</span></button>
       <button type="button">Price <span aria-hidden="true">⌄</span></button>
       <button type="button">Color <span aria-hidden="true">⌄</span></button>
@@ -113,7 +135,7 @@
       <button type="button">Collection <span aria-hidden="true">⌄</span></button>
     </div>
     <div class="filter-drawer-footer">
-      <button type="button" data-filter-close>Clear All</button>
+      <button type="button" data-filter-clear data-filter-close>Clear All</button>
       <button type="button" data-filter-close>View <span data-filter-count>Items</span></button>
     </div>
   </aside>
