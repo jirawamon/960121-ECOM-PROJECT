@@ -2,11 +2,43 @@
   "use strict";
 
   const API_BASE_URL = "";
+  const AUTH_TOKEN_KEY = "auth_token";
+  const AUTH_USER_KEY = "auth_user";
+
+  const getAuthToken = () => window.localStorage.getItem(AUTH_TOKEN_KEY);
+
+  const getAuthUser = () => {
+    try {
+      const savedUser = window.localStorage.getItem(AUTH_USER_KEY);
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const setAuthSession = (session = {}) => {
+    if (session.token) {
+      window.localStorage.setItem(AUTH_TOKEN_KEY, session.token);
+    }
+
+    if (session.user) {
+      window.localStorage.setItem(AUTH_USER_KEY, JSON.stringify(session.user));
+    }
+  };
+
+  const clearAuthSession = () => {
+    window.localStorage.removeItem(AUTH_TOKEN_KEY);
+    window.localStorage.removeItem(AUTH_USER_KEY);
+  };
 
   const request = async (endpoint, options = {}) => {
+    const token = getAuthToken();
+    const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         "Content-Type": "application/json",
+        ...authHeaders,
         ...(options.headers || {}),
       },
       ...options,
@@ -23,6 +55,11 @@
   };
 
   window.api = {
+    getAuthToken,
+    getAuthUser,
+    setAuthSession,
+    clearAuthSession,
+
     getProducts() {
       return request("/api/products");
     },

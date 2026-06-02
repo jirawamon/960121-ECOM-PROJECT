@@ -46,7 +46,7 @@
     ["Soft Drawstring Shorts", "Oat", 58, 78, "", 45],
     ["Tapered Utility Pants", "Olive", 98, 128, "", 33],
   ];
-  const products = productSource.map(([name, variant, price, comparePrice, badge, reviews], index) => ({
+  const fallbackProducts = productSource.map(([name, variant, price, comparePrice, badge, reviews], index) => ({
     id: `catalog-${index + 1}`,
     name,
     variant,
@@ -58,27 +58,140 @@
     rating: 4 + (index % 10) / 10,
     image: images[index % images.length],
     colorCount: 1 + (index % 6),
+    category: "",
+    description: variant,
     index,
     quantity: 1,
   }));
 
+  let products = [...fallbackProducts];
   let visibleProducts = [...products];
   let renderedCount = 0;
   let isLoading = false;
+  let currentSort = "featured";
+  let debounceTimer;
+  const filters = {
+    keyword: "",
+    category: "",
+    minPrice: "",
+    maxPrice: "",
+  };
 
   const escapeHtml = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   const formatPrice = (value) => `$${Math.round(Number(value) || 0).toLocaleString("en-US")}`;
 
+  const getProductImage = (product, index) => {
+    const image = product.image_url || product.image || "";
+
+    if (!image || image === "xxx") {
+      return images[index % images.length];
+    }
+
+    return image;
+  };
+
+  const normalizeApiProduct = (product, index) => {
+    const price = Number(product.price) || 0;
+    const comparePrice = Number(product.compare_price || product.comparePrice) || Math.round(price * 1.3);
+
+    return {
+      id: String(product.id || `api-product-${index + 1}`),
+      name: product.name || `Product ${index + 1}`,
+      variant: product.category || product.description || "Core / Regular",
+      price,
+      comparePrice: Math.max(comparePrice, price),
+      priceText: `$${price}`,
+      badge: Number(product.stock) > 0 ? product.badge || "In Stock" : "Sold Out",
+      reviews: Number(product.review_count || product.reviews) || 0,
+      rating: Number(product.rating) || 4,
+      image: getProductImage(product, index),
+      colorCount: 1 + (index % 6),
+      category: product.category || "",
+      description: product.description || "",
+      stock: Number(product.stock) || 0,
+      index,
+      quantity: 1,
+    };
+  };
+
+  const loadProductsFromApi = async () => {
+    if (!window.api || !window.api.getProducts) {
+      return fallbackProducts;
+    }
+
+    try {
+      const apiProducts = await window.api.getProducts();
+
+      if (Array.isArray(apiProducts) && apiProducts.length) {
+        return apiProducts.map(normalizeApiProduct);
+      }
+    } catch (error) {
+      return fallbackProducts;
+    }
+
+    return fallbackProducts;
+  };
+
   const updateCount = () => {
-    const label = `${products.length.toLocaleString("en-US")} Items`;
+    const label = `${visibleProducts.length.toLocaleString("en-US")} Items`;
     document.querySelector("#products-count").textContent = label;
     document.querySelector("[data-filter-count]").textContent = label;
+  };
+
+  const matchesKeyword = (product, keyword) => {
+    if (!keyword) {
+      return true;
+    }
+
+    return [
+      product.name,
+      product.variant,
+      product.category,
+      product.description,
+    ].some((value) => String(value || "").toLowerCase().includes(keyword));
+  };
+
+  const applyFilters = () => {
+    const keyword = filters.keyword.trim().toLowerCase();
+    const category = filters.category.trim().toLowerCase();
+    const minPrice = filters.minPrice === "" ? null : Number(filters.minPrice);
+    const maxPrice = filters.maxPrice === "" ? null : Number(filters.maxPrice);
+
+    visibleProducts = products.filter((product) => {
+      const productCategory = String(product.category || product.variant || "").toLowerCase();
+      const price = Number(product.price) || 0;
+
+      return matchesKeyword(product, keyword)
+        && (!category || productCategory.includes(category))
+        && (minPrice === null || price >= minPrice)
+        && (maxPrice === null || price <= maxPrice);
+    });
+  };
+
+  const applySort = () => {
+    if (currentSort === "newest") visibleProducts.sort((a, b) => b.index - a.index);
+    if (currentSort === "price-low") visibleProducts.sort((a, b) => a.price - b.price);
+    if (currentSort === "price-high") visibleProducts.sort((a, b) => b.price - a.price);
+    if (currentSort === "top-rated") visibleProducts.sort((a, b) => b.rating - a.rating);
+  };
+
+  const updateCatalog = () => {
+    applyFilters();
+    applySort();
+    render();
+  };
+
+  const debounce = (callback, delay = 300) => {
+    window.clearTimeout(debounceTimer);
+    debounceTimer = window.setTimeout(callback, delay);
   };
 
   const createSwatches = (index) => ["white", "gray", "stone", "denim", "black"].slice(0, Math.min(5, 2 + (index % 4))).map((name) => `<span class="swatch ${name}"></span>`).join("");
 
   const createCard = (product, index) => {
-    const discount = Math.round((1 - product.price / product.comparePrice) * 100);
+    const discount = product.comparePrice > product.price
+      ? Math.round((1 - product.price / product.comparePrice) * 100)
+      : 0;
     return `
       <article class="product-card catalog-card" data-product-id="${escapeHtml(product.id)}" data-product-index="${index}">
         <div class="product-media">
@@ -138,12 +251,25 @@
   };
 
   const sortProducts = (type) => {
-    visibleProducts = [...products];
-    if (type === "newest") visibleProducts.sort((a, b) => b.index - a.index);
-    if (type === "price-low") visibleProducts.sort((a, b) => a.price - b.price);
-    if (type === "price-high") visibleProducts.sort((a, b) => b.price - a.price);
-    if (type === "top-rated") visibleProducts.sort((a, b) => b.rating - a.rating);
-    render();
+    currentSort = type;
+    updateCatalog();
+  };
+
+  const updateFilter = (field, value) => {
+    filters[field] = value;
+    updateCatalog();
+  };
+
+  const clearFilters = () => {
+    Object.keys(filters).forEach((key) => {
+      filters[key] = "";
+    });
+
+    document.querySelectorAll("[data-catalog-filter]").forEach((field) => {
+      field.value = "";
+    });
+
+    updateCatalog();
   };
 
   const openFilter = () => {
@@ -158,7 +284,7 @@
 
   const addProductToBag = (button) => {
     const card = button.closest(".product-card");
-    const product = products[Number(card.dataset.productIndex)];
+    const product = visibleProducts[Number(card.dataset.productIndex)];
     window.cartService.addItem(product);
     window.cartService.openBagDrawer();
     button.textContent = "Added";
@@ -167,7 +293,9 @@
     }, 900);
   };
 
-  const init = () => {
+  const init = async () => {
+    products = await loadProductsFromApi();
+    visibleProducts = [...products];
     render();
     const loadMoreIfNearBottom = () => {
       if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 900) {
@@ -184,9 +312,24 @@
     document.querySelector("[data-product-sort]").addEventListener("change", (event) => sortProducts(event.target.value));
     document.addEventListener("click", (event) => {
       if (event.target.closest("[data-filter-open]")) openFilter();
+      if (event.target.closest("[data-filter-clear]")) clearFilters();
       if (event.target.closest("[data-filter-close]")) closeFilter();
       const addButton = event.target.closest(".add-button");
       if (addButton) addProductToBag(addButton);
+    });
+    document.addEventListener("input", (event) => {
+      const field = event.target.closest("[data-catalog-filter]");
+
+      if (!field) {
+        return;
+      }
+
+      if (field.dataset.catalogFilter === "keyword") {
+        debounce(() => updateFilter(field.dataset.catalogFilter, field.value));
+        return;
+      }
+
+      updateFilter(field.dataset.catalogFilter, field.value);
     });
     window.addEventListener("keydown", (event) => {
       if (event.key === "Escape") closeFilter();
