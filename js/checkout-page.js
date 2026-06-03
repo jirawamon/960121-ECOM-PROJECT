@@ -89,6 +89,40 @@
     status.classList.toggle("is-error", type === "error");
   };
 
+  const backendCheckoutMessages = {
+    out_of_stock: "Some items are out of stock. Review your bag before placing the order.",
+    price_changed: "One or more item prices changed. Review the updated total before continuing.",
+    invalid_address: "The delivery address could not be validated. Check the address fields and try again.",
+    login_required: "Please sign in before placing this order.",
+    checkout_failed: "Checkout could not be completed. Please try again.",
+  };
+
+  const setBackendCheckoutStatus = (code, message) => {
+    const panel = document.querySelector("#checkout-backend-status");
+    const messageTarget = document.querySelector("[data-checkout-backend-message]");
+
+    if (!panel || !messageTarget) {
+      return;
+    }
+
+    messageTarget.textContent = message || backendCheckoutMessages[code] || backendCheckoutMessages.checkout_failed;
+    panel.dataset.checkoutError = code || "checkout_failed";
+    panel.classList.add("is-error");
+  };
+
+  const clearBackendCheckoutStatus = () => {
+    const panel = document.querySelector("#checkout-backend-status");
+    const messageTarget = document.querySelector("[data-checkout-backend-message]");
+
+    if (!panel || !messageTarget) {
+      return;
+    }
+
+    messageTarget.textContent = "Backend checkout validation messages will appear here.";
+    panel.removeAttribute("data-checkout-error");
+    panel.classList.remove("is-error");
+  };
+
   const getCheckoutForm = () => document.querySelector("#checkout-payment-form");
 
   const getField = (name) => getCheckoutForm()?.elements[name];
@@ -1294,6 +1328,11 @@
       addRecommendationToBag(event.target.closest("[data-recommendation-item]"));
     }
   });
+
+  window.checkoutBackendStatus = {
+    clear: clearBackendCheckoutStatus,
+    set: setBackendCheckoutStatus,
+  };
 
   setupCheckoutForm();
   renderItems();
