@@ -31,6 +31,15 @@
     window.localStorage.removeItem(AUTH_USER_KEY);
   };
 
+  const mapUserAddressPayload = (address = {}) => ({
+    user_id: address.userId,
+    address_line: address.addressLine,
+    city: address.city,
+    province: address.province,
+    postal_code: address.postalCode,
+    phone: address.phone,
+  });
+
   const request = async (endpoint, options = {}) => {
     const token = getAuthToken();
     const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
@@ -75,6 +84,17 @@
       return request("/api/login", {
         method: "POST",
         body: JSON.stringify(credentials),
+      });
+    },
+
+    getUserAddresses(userId) {
+      return request(`/api/user-addresses?user_id=${encodeURIComponent(userId)}`);
+    },
+
+    createUserAddress(address) {
+      return request("/api/user-addresses", {
+        method: "POST",
+        body: JSON.stringify(mapUserAddressPayload(address)),
       });
     },
 
