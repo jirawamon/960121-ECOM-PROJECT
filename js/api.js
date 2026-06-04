@@ -40,6 +40,29 @@
     phone: address.phone,
   });
 
+  const mapUserCartPayload = (cart = {}) => ({
+    user_id: cart.userId,
+    status: cart.status,
+    created_at: cart.createdAt,
+  });
+
+  const mapUserCartItemPayload = (item = {}) => ({
+    cart_id: item.cartId,
+    product_id: item.productId,
+    quantity: item.quantity,
+    unit_price: item.unitPrice,
+  });
+
+  const mapUserCheckoutPayload = (checkout = {}) => ({
+    user_id: checkout.userId,
+    cart_id: checkout.cartId,
+    address_id: checkout.addressId,
+    total_price: checkout.totalPrice,
+    payment_type: checkout.paymentType,
+    status: checkout.status,
+    created_at: checkout.createdAt,
+  });
+
   const request = async (endpoint, options = {}) => {
     const token = getAuthToken();
     const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
@@ -95,6 +118,27 @@
       return request("/api/user-addresses", {
         method: "POST",
         body: JSON.stringify(mapUserAddressPayload(address)),
+      });
+    },
+
+    createUserCart(cart) {
+      return request("/api/user-carts", {
+        method: "POST",
+        body: JSON.stringify(mapUserCartPayload(cart)),
+      });
+    },
+
+    createUserCartItem(item) {
+      return request("/api/user-cart-items", {
+        method: "POST",
+        body: JSON.stringify(mapUserCartItemPayload(item)),
+      });
+    },
+
+    createUserCheckout(checkout) {
+      return request("/api/user-checkouts", {
+        method: "POST",
+        body: JSON.stringify(mapUserCheckoutPayload(checkout)),
       });
     },
 

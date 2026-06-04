@@ -80,6 +80,8 @@
   const getItemCount = (items) =>
     items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
 
+  const getCurrentUser = () => window.api?.getAuthUser ? window.api.getAuthUser() : null;
+
   const escapeHtml = (value) =>
     String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -668,6 +670,53 @@
     return payment;
   };
 
+  const getNewestSavedAddress = async (userId) => {
+    const addresses = await window.api.getUserAddresses(userId);
+
+    if (!Array.isArray(addresses) || !addresses.length) {
+      return null;
+    }
+
+    return addresses[0];
+  };
+
+  const createBackendCheckout = async (user, address, items) => {
+    const total = getSubtotal(items);
+    const cart = await window.api.createUserCart({
+      userId: user.id,
+      status: "active",
+    });
+    const cartId = cart.cart_id || cart.cartId;
+
+    if (!cartId) {
+      throw new Error("Backend did not return a cart id.");
+    }
+
+    await Promise.all(items.map((item) => {
+      const productId = Number(item.id);
+
+      if (!Number.isInteger(productId)) {
+        throw new Error(`Invalid product id for ${item.name || "cart item"}.`);
+      }
+
+      return window.api.createUserCartItem({
+        cartId,
+        productId,
+        quantity: Number(item.quantity) || 1,
+        unitPrice: Number(item.price) || 0,
+      });
+    }));
+
+    return window.api.createUserCheckout({
+      userId: user.id,
+      cartId,
+      addressId: address.address_id || address.addressId,
+      totalPrice: total,
+      paymentType: selectedPaymentMethod,
+      status: "pending",
+    });
+  };
+
   const clearCardErrors = () => {
     ["cardNumber", "cardholderName", "expiry", "cvv"].forEach((name) => setFieldError(name, ""));
   };
@@ -1230,6 +1279,7 @@
 
   const continueCheckout = async () => {
     const items = window.cartState && Array.isArray(window.cartState.items) ? window.cartState.items : [];
+    const user = getCurrentUser();
 
     if (!validateCheckoutForm(true)) {
       updatePlaceOrderState();
@@ -1243,26 +1293,45 @@
       return;
     }
 
-    if (isPromptPaySelected()) {
-      try {
-        setPlaceOrderLoading(true);
-        await createPromptPayPayment(items);
-        setCheckoutStatus("PromptPay QR code is ready.");
-      } catch (error) {
-        setCheckoutStatus(error.message || "Unable to create PromptPay payment.", "error");
-      } finally {
-        setPlaceOrderLoading(false);
-      }
-
+    if (!user?.id) {
+      setBackendCheckoutStatus("login_required");
+      setCheckoutStatus("Please sign in before placing this order.", "error");
       return;
     }
 
-    showCheckoutDialog(
-      "Order ready",
-      isCardPaymentSelected()
-        ? "Your card payment details are valid. Payment processing is not connected yet."
-        : `${getPaymentMethodLabel(selectedPaymentMethod)} is selected. Payment processing is not connected yet.`
-    );
+    try {
+      setPlaceOrderLoading(true);
+      clearBackendCheckoutStatus();
+      setCheckoutStatus("Creating checkout...");
+
+      const address = await getNewestSavedAddress(user.id);
+
+      if (!address?.address_id) {
+        setBackendCheckoutStatus("invalid_address", "Save an address in your account before checkout.");
+        setCheckoutStatus("Save an address in your account before checkout.", "error");
+        return;
+      }
+
+      const checkout = await createBackendCheckout(user, address, items);
+      const orderId = checkout.checkout_id || checkout.checkoutId;
+      const status = checkout.status || "pending";
+      const total = checkout.total_price ?? checkout.totalPrice ?? getSubtotal(items);
+
+      clearCompletedOrderCart();
+      renderItems();
+      setCheckoutStatus("Checkout saved successfully.");
+      showOrderSuccessSummary({
+        orderId,
+        status,
+        total,
+        message: `${getPaymentMethodLabel(selectedPaymentMethod)} checkout saved successfully.`,
+      });
+    } catch (error) {
+      setBackendCheckoutStatus("checkout_failed", error.message || "Checkout could not be completed.");
+      setCheckoutStatus(error.message || "Checkout could not be completed.", "error");
+    } finally {
+      setPlaceOrderLoading(false);
+    }
   };
 
   const addRecommendationToBag = (card) => {
