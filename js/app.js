@@ -28,12 +28,19 @@
       return;
     }
 
-    if (!window.cartService.addItem(product)) {
+    if (window.productService?.openProductSelection) {
+      if (!window.cartService.requireAccountBeforeAdd()) {
+        return;
+      }
+
+      window.productService.openProductSelection(product);
       return;
     }
 
-    window.cartService.openBagDrawer();
-    showAddedState(button);
+    if (window.cartService.addItem(product)) {
+      window.cartService.openBagDrawer();
+      showAddedState(button);
+    }
   };
 
   const setupSignupForm = () => {

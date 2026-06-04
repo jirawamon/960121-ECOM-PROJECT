@@ -3,25 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Men's Clothing + Accessories | MONOFORM</title>
+  <title>Products | MONOFORM</title>
   <link rel="stylesheet" href="960121-ECOM-PROJECT\styles.css">
+  <script>
+    (() => {
+      const slugify = (value) => String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      const labels = {
+        men: "Men's Clothing + Accessories",
+        women: "Women's Clothing + Accessories",
+        denim: "Denim",
+        accessories: "Accessories",
+        "new-arrival": "New Arrivals",
+        core: "Essentials",
+      };
+      const params = new URLSearchParams(window.location.search);
+      const hash = slugify(window.location.hash.replace(/^#/, ""));
+      const gender = slugify(params.get("gender") || params.get("audience") || "");
+      const category = slugify(params.get("category") || "");
+      const collection = slugify(params.get("collection") || "");
+      const label = labels[gender] || labels[category] || labels[collection] || labels[hash] || "Men's Clothing + Accessories";
+
+      window.__catalogInitialLabel = label;
+      document.title = `${label} | MONOFORM`;
+    })();
+  </script>
 </head>
 <body>
   <div class="promo" role="status" aria-label="Current promotions">
     <span>30% off new arrivals*</span>
     <span class="promo-divider">|</span>
     <span>Extra 20% off orders of $100+*</span>
-    <a href="products.html">Women</a>
-    <a href="products.html">Men</a>
+    <a href="products.html?gender=women">Women</a>
+    <a href="products.html?gender=men">Men</a>
     <a href="products.html">Details</a>
   </div>
 
   <header class="site-header">
     <nav class="nav" aria-label="Primary navigation">
-      <a href="products.html">New</a>
-      <a href="products.html">Women</a>
-      <a href="products.html">Men</a>
-      <a href="products.html">Essentials</a>
+      <a href="products.html?collection=new-arrival">New</a>
+      <a href="products.html?gender=women">Women</a>
+      <a href="products.html?gender=men">Men</a>
+      <a href="products.html?collection=core">Essentials</a>
     </nav>
     <a class="brand" href="index.html">MONOFORM</a>
     <div class="actions">
@@ -33,7 +59,10 @@
   <main class="catalog-page" id="products">
     <section class="catalog-heading" aria-labelledby="catalog-title">
       <div>
-        <h1 id="catalog-title">Men's Clothing + Accessories</h1>
+        <h1 id="catalog-title">Products</h1>
+        <script>
+          document.getElementById("catalog-title").textContent = window.__catalogInitialLabel || "Products";
+        </script>
       </div>
     </section>
 

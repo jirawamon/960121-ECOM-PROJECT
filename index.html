@@ -11,17 +11,17 @@
     <span>30% off new arrivals*</span>
     <span class="promo-divider">|</span>
     <span>Extra 20% off orders of $100+*</span>
-    <a href="products.html">Women</a>
-    <a href="products.html">Men</a>
+    <a href="products.html?gender=women">Women</a>
+    <a href="products.html?gender=men">Men</a>
     <a href="products.html">Details</a>
   </div>
 
   <header class="site-header">
     <nav class="nav" aria-label="Primary navigation">
-      <a href="products.html">New</a>
-      <a href="products.html">Women</a>
-      <a href="products.html">Men</a>
-      <a href="products.html">Essentials</a>
+      <a href="products.html?collection=new-arrival">New</a>
+      <a href="products.html?gender=women">Women</a>
+      <a href="products.html?gender=men">Men</a>
+      <a href="products.html?collection=core">Essentials</a>
     </nav>
     <a class="brand" href="index.html">MONOFORM</a>
     <div class="actions">
@@ -37,32 +37,30 @@
         <h1>Vacation<br>Mode</h1>
         <p>Everything you need for warm-weather dressing. Relaxed tops and voluminous denim built to stay cool in the heat.</p>
         <div class="hero-actions">
-          <a class="button" href="products.html">Shop women</a>
-          <a class="button secondary" href="products.html">Shop men</a>
+          <a class="button" href="products.html?gender=women">Shop women</a>
+          <a class="button secondary" href="products.html?gender=men">Shop men</a>
         </div>
       </div>
       <div class="hero-image" aria-label="Black and white fashion editorial">
         <img class="hero-panel panel-left" src="https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=1400&q=85" alt="Summer fashion portrait on beach">
         <img class="hero-panel panel-right" src="https://images.unsplash.com/photo-1464863979621-258859e62245?auto=format&fit=crop&w=1400&q=85" alt="Street style summer outfit portrait">
-        <span>Mono collection</span>
       </div>
     </section>
 
     <section class="category-strip" aria-label="Shop categories">
-      <a class="category-link" href="products.html">Women <small>42 styles</small></a>
-      <a class="category-link" href="products.html">Men <small>38 styles</small></a>
-      <a class="category-link" href="products.html">Denim <small>19 styles</small></a>
-      <a class="category-link" href="products.html">Accessories <small>12 styles</small></a>
+      <a class="category-link" href="products.html?gender=women">Women </a>
+      <a class="category-link" href="products.html?gender=men">Men </a>
+      <a class="category-link" href="products.html?category=denim">Denim </a>
+      <a class="category-link" href="products.html?category=accessories">Accessories </a>
     </section>
 
     <section class="section" id="products">
       <div class="section-heading">
-        <h2>New arrivals</h2>
+        <h2>Our Products</h2>
         <p>Clean silhouettes, neutral shades, and tactile basics designed to work together without effort.</p>
       </div>
       <div class="products-toolbar">
         <span id="products-count">Loading items</span>
-        <span>Filter & sort</span>
       </div>
       <div class="product-grid" id="products-grid" data-home-products="new-arrivals">
         <p class="home-products-status">Loading database products...</p>
@@ -74,7 +72,7 @@
         <p class="eyebrow">Essentials edit</p>
         <h2>Understated layers for every day.</h2>
         <p>Soft ribbed tanks, simple waistbands, straight denim, and tonal basics create a capsule that feels deliberate without feeling dressed up.</p>
-        <a class="button" href="products.html">Shop essentials</a>
+        <a class="button" href="products.html?collection=core">Shop essentials</a>
       </div>
       <div class="editorial-card">
         <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1400&q=85" alt="Minimal fashion model in neutral clothing">
@@ -106,6 +104,7 @@
   </footer>
 
   <button class="bag-overlay" type="button" data-bag-close aria-label="Close bag panel"></button>
+  <button class="product-detail-overlay" type="button" data-detail-close aria-label="Close product details"></button>
 
   <aside class="bag-drawer" id="bag-drawer" role="dialog" aria-modal="true" aria-labelledby="bag-drawer-title" aria-hidden="true" tabindex="-1">
     <div class="bag-drawer-header">
@@ -129,6 +128,10 @@
       <button class="bag-drawer-checkout" type="button" data-bag-checkout>Continue to Checkout</button>
       <button class="bag-drawer-secondary" type="button" data-bag-close>Keep Shopping</button>
     </div>
+  </aside>
+
+  <aside class="product-detail-drawer" id="product-detail-drawer" role="dialog" aria-modal="true" aria-labelledby="product-detail-title" aria-hidden="true" tabindex="-1">
+    <div class="product-detail-shell" id="product-detail-content"></div>
   </aside>
 
   <button class="account-overlay" type="button" data-account-close aria-label="Close account panel"></button>

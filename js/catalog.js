@@ -55,6 +55,10 @@
     ["bottoms", /pant|trouser|short|chino/i],
     ["tops", /shirt|tee|t-shirt|sweater|sweatshirt|polo|knit/i],
   ];
+  const audienceRules = [
+    ["women", /\bwomen\b|\bwoman\b|\blady\b|\bladies\b|\bfemale\b/i],
+    ["men", /\bmen\b|\bman\b|\bmens\b|\bmale\b/i],
+  ];
   const colorRules = [
     ["white", /white|ivory/i],
     ["black", /black|charcoal|graphite/i],
@@ -69,6 +73,7 @@
     ["M", "L", "XL"],
     ["S", "M", "L", "XL"],
   ];
+  const defaultSizes = ["XS", "S", "M", "L", "XL"];
   const swatchOptions = ["white", "gray", "stone", "denim", "black"];
   const colorLabels = {
     white: "White",
@@ -92,6 +97,14 @@
     return match ? match[0] : fallback;
   };
 
+  const matchingRules = (value, rules, fallback = []) => {
+    const matches = rules
+      .filter(([, pattern]) => pattern.test(value))
+      .map(([key]) => key);
+
+    return matches.length ? matches : fallback;
+  };
+
   const normalizeList = (value, fallback = []) => {
     if (Array.isArray(value)) {
       return value.map((item) => String(item).trim()).filter(Boolean);
@@ -110,8 +123,10 @@
     const normalizedCategory = categoryRules.some(([key]) => key === category)
       ? category
       : firstMatchingRule(text, categoryRules, "tops");
-    const color = firstMatchingRule(text, colorRules, "neutral");
-    const sizes = normalizeList(product.sizes || product.size, sizesByIndex[index % sizesByIndex.length]);
+    const audience = firstMatchingRule(text, audienceRules, "");
+    const colorKeys = matchingRules(text, colorRules, ["neutral"]);
+    const color = colorKeys[0];
+    const sizes = normalizeList(product.sizes || product.size, product.id ? defaultSizes : sizesByIndex[index % sizesByIndex.length]);
     const badge = slugify(product.badge);
     const collection = badge.includes("new")
       ? "new-arrival"
@@ -123,7 +138,9 @@
 
     return {
       categoryKey: normalizedCategory,
+      audienceKey: audience,
       colorKey: color,
+      colorKeys,
       sizeKeys: sizes.map((size) => size.toUpperCase()),
       collectionKey: collection || "core",
     };
@@ -160,8 +177,116 @@
     color: "",
     size: "",
     collection: "",
+    audience: "",
     minPrice: "",
     maxPrice: "",
+  };
+
+  const filterLabels = {
+    "gender:men": "Men's Clothing + Accessories",
+    "gender:women": "Women's Clothing + Accessories",
+    "category:denim": "Denim",
+    "category:accessories": "Accessories",
+    "collection:new-arrival": "New Arrivals",
+    "collection:core": "Essentials",
+  };
+
+  const setCatalogHeading = (label) => {
+    if (!label) {
+      return;
+    }
+
+    const title = document.querySelector("#catalog-title");
+
+    if (title) {
+      title.textContent = label;
+    }
+
+    document.title = `${label} | MONOFORM`;
+  };
+
+  const getInitialUrlFilters = () => {
+    const params = new URLSearchParams(window.location.search);
+    const hashValue = slugify(window.location.hash.replace(/^#/, ""));
+    const gender = slugify(params.get("gender") || params.get("audience") || "");
+    const category = slugify(params.get("category") || "");
+    const collection = slugify(params.get("collection") || "");
+    const sort = slugify(params.get("sort") || "");
+    const keyword = String(params.get("keyword") || "").trim();
+    const initial = {};
+
+    if (["men", "women"].includes(gender)) {
+      initial.audience = gender;
+      initial.label = filterLabels[`gender:${gender}`];
+    }
+
+    if (["men", "women"].includes(category)) {
+      initial.audience = category;
+      initial.label = filterLabels[`gender:${category}`];
+    } else if (["tops", "bottoms", "underwear", "outerwear", "denim", "accessories"].includes(category)) {
+      initial.category = category;
+      initial.label = filterLabels[`category:${category}`] || `${category.charAt(0).toUpperCase()}${category.slice(1)}`;
+    }
+
+    if (["new-arrival", "best-seller", "sale", "core"].includes(collection)) {
+      initial.collection = collection;
+      initial.label = filterLabels[`collection:${collection}`] || initial.label;
+    }
+
+    if (!initial.category && ["denim", "accessories"].includes(hashValue)) {
+      initial.category = hashValue;
+      initial.label = filterLabels[`category:${hashValue}`];
+    }
+
+    if (!initial.collection && ["new", "new-arrivals"].includes(hashValue)) {
+      initial.collection = "new-arrival";
+      initial.label = filterLabels["collection:new-arrival"];
+    }
+
+    if (!initial.collection && hashValue === "essentials") {
+      initial.collection = "core";
+      initial.label = filterLabels["collection:core"];
+    }
+
+    if (["featured", "newest", "price-low", "price-high", "top-rated"].includes(sort)) {
+      initial.sort = sort;
+    }
+
+    if (keyword) {
+      initial.keyword = keyword;
+    }
+
+    return initial;
+  };
+
+  const applyInitialUrlFilters = () => {
+    const initial = getInitialUrlFilters();
+
+    Object.keys(filters).forEach((key) => {
+      if (Object.prototype.hasOwnProperty.call(initial, key)) {
+        filters[key] = initial[key];
+      }
+    });
+
+    if (initial.sort) {
+      currentSort = initial.sort;
+    }
+
+    document.querySelectorAll("[data-catalog-filter]").forEach((field) => {
+      const value = filters[field.dataset.catalogFilter];
+
+      if (typeof value === "string") {
+        field.value = value;
+      }
+    });
+
+    const sortField = document.querySelector("[data-product-sort]");
+
+    if (sortField) {
+      sortField.value = currentSort;
+    }
+
+    setCatalogHeading(initial.label);
   };
 
   const escapeHtml = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -257,6 +382,7 @@
   const applyFilters = () => {
     const keyword = filters.keyword.trim().toLowerCase();
     const category = filters.category.trim().toLowerCase();
+    const audience = filters.audience.trim().toLowerCase();
     const color = filters.color.trim().toLowerCase();
     const size = filters.size.trim().toUpperCase();
     const collection = filters.collection.trim().toLowerCase();
@@ -267,9 +393,10 @@
       const price = Number(product.price) || 0;
 
       return matchesKeyword(product, keyword)
+        && (!audience || product.audienceKey === audience)
         && (!category || product.categoryKey === category)
         && matchesPriceRange(price, filters.priceRange)
-        && (!color || product.colorKey === color)
+        && (!color || (product.colorKeys || [product.colorKey]).includes(color))
         && (!size || product.sizeKeys.includes(size))
         && (!collection || product.collectionKey === collection)
         && (minPrice === null || price >= minPrice)
@@ -304,13 +431,14 @@
   };
 
   const getProductColors = (product, index) => {
-    const primary = product.colorKey === "blue"
+    const detectedColors = (product.colorKeys || [product.colorKey]).map((color) => color === "blue"
       ? "denim"
-      : product.colorKey === "neutral"
+      : color === "neutral"
         ? "stone"
-        : product.colorKey;
-    const maxColors = Math.min(5, Number(product.colorCount) || 2 + (index % 4));
-    return [primary, ...swatchOptions]
+        : color);
+    const primary = detectedColors[0];
+    const maxColors = Math.min(5, Math.max(Number(product.colorCount) || 2 + (index % 4), detectedColors.length));
+    return [primary, ...detectedColors, ...swatchOptions]
       .filter(Boolean)
       .filter((name, swatchIndex, list) => list.indexOf(name) === swatchIndex)
       .slice(0, maxColors);
@@ -608,8 +736,9 @@
 
   const init = async () => {
     products = await loadProductsFromApi();
+    applyInitialUrlFilters();
     visibleProducts = [...products];
-    render();
+    updateCatalog();
     const loadMoreIfNearBottom = () => {
       if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 900) {
         appendNextProducts();
