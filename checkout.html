@@ -7,20 +7,17 @@
   <link rel="stylesheet" href="960121-ECOM-PROJECT\styles.css">
 </head>
 <body class="checkout-page">
-  <header class="checkout-header">
-    <a class="checkout-brand" href="index.html">MONOFORM</a>
-    <nav class="checkout-nav" aria-label="Checkout navigation">
+  <header class="site-header">
+    <nav class="nav" aria-label="Primary navigation">
       <a href="products.html">New</a>
       <a href="products.html">Women</a>
       <a href="products.html">Men</a>
       <a href="products.html">Essentials</a>
-      <a href="products.html">Denim</a>
-      <a href="products.html">Sale</a>
     </nav>
-    <div class="checkout-icons" aria-label="Checkout tools">
-      <a href="products.html" aria-label="Search">Search</a>
-      <a href="index.html" aria-label="Account">Account</a>
-      <span aria-label="Bag item count">Bag <span id="bag-count">0</span></span>
+    <a class="brand" href="index.html">MONOFORM</a>
+    <div class="actions">
+      <a class="action-icon-link action-account" href="index.html" data-account-open aria-label="Account" aria-controls="account-drawer" aria-expanded="false"><span aria-hidden="true"></span></a>
+      <button class="bag-button action-bag" type="button" onclick="window.location.href='checkout.html'" aria-label="Bag"><span aria-hidden="true"></span><strong id="bag-count">0</strong></button>
     </div>
   </header>
 
@@ -44,7 +41,7 @@
         <div class="summary-rewards">
           <h2>My Monoform Rewards</h2>
           <p>You could earn <strong id="reward-points">0 points</strong> on this order.</p>
-          <a href="index.html">Sign in or Join Monoform Rewards now.</a>
+          <a href="#account-drawer" data-account-open>Sign in or Join Monoform Rewards now.</a>
         </div>
 
         <div class="summary-body">
@@ -331,8 +328,86 @@
     </div>
   </footer>
 
+  <button class="account-overlay" type="button" data-account-close aria-label="Close account panel"></button>
+
+  <aside class="account-drawer" id="account-drawer" role="dialog" aria-modal="true" aria-labelledby="account-drawer-title" aria-hidden="true" tabindex="-1">
+    <div class="account-drawer-hero">
+      <div>
+        <p class="account-drawer-kicker">My</p>
+        <h2 id="account-drawer-title">Monoform<br>Rewards</h2>
+      </div>
+      <div class="account-benefits" aria-label="Rewards benefits">
+        <span>Earn points</span>
+        <span>Redeem rewards</span>
+        <span>Enjoy exclusive benefits</span>
+        <a href="#account-drawer" data-account-open>See how it works</a>
+      </div>
+      <button class="account-close" type="button" data-account-close aria-label="Close account panel">x</button>
+    </div>
+
+    <div class="account-drawer-body">
+      <div class="account-tabs" role="tablist" aria-label="Account access">
+        <button class="account-tab" type="button" role="tab" aria-selected="false" aria-controls="signin-panel" data-account-tab="signin">Sign in</button>
+        <button class="account-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="signup-panel" data-account-tab="signup">Sign up</button>
+      </div>
+
+      <section class="account-panel" id="signin-panel" role="tabpanel" data-account-panel="signin" hidden>
+        <form class="account-form" data-auth-form="signin">
+          <label>
+            <span>Email*</span>
+            <input type="email" name="email" autocomplete="email" placeholder=" " required>
+          </label>
+          <label>
+            <span>Password*</span>
+            <input type="password" name="password" autocomplete="current-password" placeholder=" " required>
+          </label>
+          <label class="account-check">
+            <input type="checkbox" name="remember">
+            <span>Keep me signed in on this device.</span>
+          </label>
+          <button class="account-submit" type="submit">Sign in</button>
+          <a class="account-secondary-link" href="index.html">Forgot password?</a>
+          <p class="account-status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="account-panel is-active" id="signup-panel" role="tabpanel" data-account-panel="signup">
+        <form class="account-form" data-auth-form="signup">
+          <div class="account-form-grid">
+            <label>
+              <span>First Name*</span>
+              <input type="text" name="firstName" autocomplete="given-name" placeholder=" " required>
+            </label>
+            <label>
+              <span>Last Name*</span>
+              <input type="text" name="lastName" autocomplete="family-name" placeholder=" " required>
+            </label>
+          </div>
+          <label>
+            <span>Email*</span>
+            <input type="email" name="email" autocomplete="email" placeholder=" " required>
+          </label>
+          <label>
+            <span>Create a Password*</span>
+            <input type="password" name="password" autocomplete="new-password" minlength="8" placeholder=" " required>
+          </label>
+          <label class="account-check">
+            <input type="checkbox" name="marketing" checked>
+            <span>I would like to receive updates on the latest products and promotions via email or other channels.</span>
+          </label>
+          <button class="account-submit" type="submit">Create account</button>
+          <p class="account-terms">By clicking the Create account button, I agree to the Monoform Rewards Terms, Privacy Policy, and Terms and Conditions.</p>
+          <p class="account-status" aria-live="polite"></p>
+        </form>
+      </section>
+    </div>
+  </aside>
+
   <script src="js/api.js"></script>
   <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/account-link.js"></script>
+  <script src="js/app.js"></script>
   <script src="js/checkout-page.js"></script>
 </body>
 </html>

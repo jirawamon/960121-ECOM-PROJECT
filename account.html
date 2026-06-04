@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account | MONOFORM</title>
+  <link rel="stylesheet" href="960121-ECOM-PROJECT\styles.css">
+</head>
+<body>
+  <div class="promo" role="status" aria-label="Current promotions">
+    <span>30% off new arrivals*</span>
+    <span class="promo-divider">|</span>
+    <span>Extra 20% off orders of $100+*</span>
+    <a href="products.html">Women</a>
+    <a href="products.html">Men</a>
+    <a href="products.html">Details</a>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="products.html">New</a>
+      <a href="products.html">Women</a>
+      <a href="products.html">Men</a>
+      <a href="products.html">Essentials</a>
+    </nav>
+    <a class="brand" href="index.html">MONOFORM</a>
+    <div class="actions">
+      <a class="action-icon-link action-account" href="account.html" aria-label="Account"><span aria-hidden="true"></span></a>
+      <button class="bag-button action-bag" type="button" onclick="window.location.href='checkout.html'" aria-label="Bag"><span aria-hidden="true"></span><strong id="bag-count">0</strong></button>
+    </div>
+  </header>
+
+  <main class="account-page-shell" data-account-page>
+    <aside class="account-page-nav" aria-label="Account navigation">
+      <div>
+        <p>My Account</p>
+        <h1 data-account-greeting>Hi</h1>
+      </div>
+      <nav>
+        <a class="is-active" href="#overview">Overview</a>
+        <a href="#orders">Orders</a>
+        <a href="#rewards">Rewards</a>
+        <a href="#profile">Personal Information</a>
+        <a href="#addresses">Addresses</a>
+        <a href="#payment">Payment</a>
+        <a href="#saved">Saved Items</a>
+        <button type="button" data-account-signout>Sign Out</button>
+      </nav>
+    </aside>
+
+    <section class="account-page-content" id="overview">
+      <section class="account-rewards-card" id="rewards" aria-labelledby="account-rewards-title">
+        <div>
+          <p>MONOFORM Rewards</p>
+          <h2 id="account-rewards-title">Your Points Balance</h2>
+          <strong data-account-points>250</strong>
+          <span data-account-next-reward>You are 750 points away from your next $5 reward.</span>
+        </div>
+        <div class="account-progress" aria-label="Reward progress">
+          <div><span data-account-progress></span></div>
+          <p><span>0</span><span>1000</span></p>
+        </div>
+        <div class="account-reward-rules">
+          <span>$1 spent = 10 points</span>
+          <span>1000 points = $5 reward</span>
+        </div>
+      </section>
+
+      <section class="account-summary-card" id="profile" aria-labelledby="personal-info-title">
+        <div class="account-section-heading">
+          <p>Personal Information</p>
+          <span data-profile-status aria-live="polite"></span>
+        </div>
+        <h2 id="personal-info-title">Sign In Information</h2>
+        <form class="account-edit-form" data-profile-form>
+          <div class="account-form-grid">
+            <label>
+              <span>First Name*</span>
+              <input type="text" name="firstName" autocomplete="given-name" required>
+            </label>
+            <label>
+              <span>Last Name*</span>
+              <input type="text" name="lastName" autocomplete="family-name" required>
+            </label>
+          </div>
+          <label>
+            <span>Email*</span>
+            <input type="email" name="email" autocomplete="email" required>
+          </label>
+          <div class="account-form-grid account-phone-fields">
+            <label>
+              <span>Region</span>
+              <select name="phoneRegion" data-phone-region></select>
+            </label>
+            <label>
+              <span>Phone Number</span>
+              <input type="tel" name="phoneNumber" inputmode="numeric" autocomplete="tel-national" placeholder="xxx-xxx-xxxx">
+            </label>
+          </div>
+          <div class="account-form-grid account-birthday-fields" aria-label="Birthday">
+            <label>
+              <span>Year</span>
+              <select name="birthdayYear" data-birthday-year></select>
+            </label>
+            <label>
+              <span>Month</span>
+              <select name="birthdayMonth" data-birthday-month></select>
+            </label>
+            <label>
+              <span>Date</span>
+              <select name="birthdayDay" data-birthday-day></select>
+            </label>
+          </div>
+          <p class="account-muted">Member ID: <strong data-account-member>MF000000</strong></p>
+          <button class="account-submit account-inline-submit" type="submit">Save personal information</button>
+        </form>
+
+        <form class="account-edit-form account-password-form" data-password-form>
+          <h2>Change Password</h2>
+          <div class="account-form-grid">
+            <label>
+              <span>Current Password*</span>
+              <input type="password" name="currentPassword" autocomplete="current-password" required>
+            </label>
+            <label>
+              <span>New Password*</span>
+              <input type="password" name="newPassword" autocomplete="new-password" minlength="8" required>
+            </label>
+          </div>
+          <button class="account-secondary-button" type="submit">Update password</button>
+          <p class="account-status" data-password-status aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="account-summary-card" id="addresses" aria-labelledby="addresses-title">
+        <div class="account-section-heading">
+          <p>Addresses</p>
+          <span data-address-status aria-live="polite"></span>
+        </div>
+        <h2 id="addresses-title">Saved Addresses</h2>
+        <form class="account-edit-form" data-address-form>
+          <label>
+            <span>Address Line*</span>
+            <input type="text" name="addressLine" autocomplete="street-address" required>
+          </label>
+          <div class="account-form-grid">
+            <label>
+              <span>City*</span>
+              <input type="text" name="city" autocomplete="address-level2" required>
+            </label>
+            <label>
+              <span>Province / State*</span>
+              <input type="text" name="province" autocomplete="address-level1" required>
+            </label>
+          </div>
+          <div class="account-form-grid">
+            <label>
+              <span>Postal Code*</span>
+              <input type="text" name="postalCode" autocomplete="postal-code" required>
+            </label>
+            <label>
+              <span>Phone*</span>
+              <input type="tel" name="phone" autocomplete="tel" required>
+            </label>
+          </div>
+          <button class="account-submit account-inline-submit" type="submit">Add address</button>
+        </form>
+        <div class="account-address-list" data-account-addresses>
+          <p>No saved addresses yet.</p>
+        </div>
+      </section>
+
+      <section class="account-two-column">
+        <article class="account-summary-card" id="orders">
+          <div class="account-section-heading">
+            <p>Orders</p>
+          </div>
+          <h2>Recent Orders</h2>
+          <div class="account-order-list" data-account-orders>
+            <p class="account-muted">No recent orders yet. Items you purchase will appear here.</p>
+          </div>
+        </article>
+        <article class="account-summary-card" id="saved">
+          <div class="account-section-heading">
+            <p>Saved Items</p>
+            <a href="products.html">Shop now</a>
+          </div>
+          <h2>Favorites</h2>
+          <div class="account-saved-list" data-saved-items>
+            <p class="account-muted">Save pieces while browsing and return to them here.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="account-help-band" aria-labelledby="account-help-title">
+        <div>
+          <h2 id="account-help-title">Need help?</h2>
+          <p>Questions about your account, rewards, or orders? Our support team can help.</p>
+        </div>
+        <div>
+          <a href="index.html">Customer Service</a>
+          <a href="products.html">Shipping and Delivery</a>
+          <a href="checkout.html">Payment</a>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/account-link.js"></script>
+  <script src="js/account-page.js"></script>
+</body>
+</html>

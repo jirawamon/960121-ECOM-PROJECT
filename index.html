@@ -11,23 +11,22 @@
     <span>30% off new arrivals*</span>
     <span class="promo-divider">|</span>
     <span>Extra 20% off orders of $100+*</span>
-    <a href="/960121-ECOM-PROJECT/products.html">Women</a>
-    <a href="/960121-ECOM-PROJECT/products.html">Men</a>
+    <a href="products.html">Women</a>
+    <a href="products.html">Men</a>
     <a href="products.html">Details</a>
   </div>
 
   <header class="site-header">
     <nav class="nav" aria-label="Primary navigation">
       <a href="products.html">New</a>
-      <a href="/960121-ECOM-PROJECT/products.html">Women</a>
-      <a href="/960121-ECOM-PROJECT/products.html">Men</a>
+      <a href="products.html">Women</a>
+      <a href="products.html">Men</a>
       <a href="products.html">Essentials</a>
     </nav>
     <a class="brand" href="index.html">MONOFORM</a>
     <div class="actions">
-      <a href="products.html">Search</a>
-      <a href="index.html" data-account-open aria-controls="account-drawer" aria-expanded="false">Account</a>
-      <button class="bag-button" type="button" onclick="window.location.href='checkout.html'">Bag <span id="bag-count">0</span></button>
+      <a class="action-icon-link action-account" href="index.html" data-account-open aria-label="Account" aria-controls="account-drawer" aria-expanded="false"><span aria-hidden="true"></span></a>
+      <button class="bag-button action-bag" type="button" data-bag-open aria-label="Bag"><span aria-hidden="true"></span><strong id="bag-count">0</strong></button>
     </div>
   </header>
 
@@ -38,8 +37,8 @@
         <h1>Vacation<br>Mode</h1>
         <p>Everything you need for warm-weather dressing. Relaxed tops and voluminous denim built to stay cool in the heat.</p>
         <div class="hero-actions">
-          <a class="button" href="/960121-ECOM-PROJECT/products.html">Shop women</a>
-          <a class="button secondary" href="/960121-ECOM-PROJECT/products.html">Shop men</a>
+          <a class="button" href="products.html">Shop women</a>
+          <a class="button secondary" href="products.html">Shop men</a>
         </div>
       </div>
       <div class="hero-image" aria-label="Black and white fashion editorial">
@@ -50,10 +49,10 @@
     </section>
 
     <section class="category-strip" aria-label="Shop categories">
-      <a class="category-link" href="/960121-ECOM-PROJECT/products.html">Women <small>42 styles</small></a>
-      <a class="category-link" href="/960121-ECOM-PROJECT/products.html">Men <small>38 styles</small></a>
-      <a class="category-link" href="/960121-ECOM-PROJECT/products.html">Denim <small>19 styles</small></a>
-      <a class="category-link" href="/960121-ECOM-PROJECT/products.html">Accessories <small>12 styles</small></a>
+      <a class="category-link" href="products.html">Women <small>42 styles</small></a>
+      <a class="category-link" href="products.html">Men <small>38 styles</small></a>
+      <a class="category-link" href="products.html">Denim <small>19 styles</small></a>
+      <a class="category-link" href="products.html">Accessories <small>12 styles</small></a>
     </section>
 
     <section class="section" id="products">
@@ -65,54 +64,8 @@
         <span id="products-count">Loading items</span>
         <span>Filter & sort</span>
       </div>
-      <div class="product-grid" id="products-grid">
-        <article class="product-card">
-          <div class="product-media">
-            <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=900&q=85" alt="Folded neutral cotton shirt">
-          </div>
-          <div class="product-info">
-            <h3>Relaxed cotton shirt</h3>
-            <div class="product-meta"><span>White / Black</span><span>$68</span></div>
-            <div class="swatches" aria-label="Available colors"><span class="swatch white"></span><span class="swatch"></span></div>
-            <button class="add-button" type="button">Add to bag</button>
-          </div>
-        </article>
-
-        <article class="product-card">
-          <div class="product-media">
-            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=85" alt="Minimal fashion outfit in black">
-          </div>
-          <div class="product-info">
-            <h3>Structured black coat</h3>
-            <div class="product-meta"><span>Black</span><span>$148</span></div>
-            <div class="swatches" aria-label="Available colors"><span class="swatch"></span><span class="swatch gray"></span></div>
-            <button class="add-button" type="button">Add to bag</button>
-          </div>
-        </article>
-
-        <article class="product-card">
-          <div class="product-media">
-            <img src="https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=900&q=85" alt="Denim jacket on hanger">
-          </div>
-          <div class="product-info">
-            <h3>Archive denim jacket</h3>
-            <div class="product-meta"><span>Rinse wash</span><span>$118</span></div>
-            <div class="swatches" aria-label="Available colors"><span class="swatch gray"></span><span class="swatch"></span></div>
-            <button class="add-button" type="button">Add to bag</button>
-          </div>
-        </article>
-
-        <article class="product-card">
-          <div class="product-media">
-            <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=900&q=85" alt="White minimal tee on model">
-          </div>
-          <div class="product-info">
-            <h3>Essential crew tee</h3>
-            <div class="product-meta"><span>White</span><span>$34</span></div>
-            <div class="swatches" aria-label="Available colors"><span class="swatch white"></span><span class="swatch gray"></span><span class="swatch"></span></div>
-            <button class="add-button" type="button">Add to bag</button>
-          </div>
-        </article>
+      <div class="product-grid" id="products-grid" data-home-products="new-arrivals">
+        <p class="home-products-status">Loading database products...</p>
       </div>
     </section>
 
@@ -133,54 +86,8 @@
         <h2>Denim focus</h2>
         <p>Straight cuts, clean washes, and relaxed fits that anchor the collection.</p>
       </div>
-      <div class="product-grid">
-        <article class="product-card">
-          <div class="product-media">
-            <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=900&q=85" alt="Minimal jeans product shot">
-          </div>
-          <div class="product-info">
-            <h3>Straight leg jean</h3>
-            <div class="product-meta"><span>Light wash</span><span>$88</span></div>
-            <div class="swatches"><span class="swatch gray"></span><span class="swatch"></span></div>
-            <button class="add-button" type="button">Add to bag</button>
-          </div>
-        </article>
-
-        <article class="product-card">
-          <div class="product-media">
-            <img src="https://images.unsplash.com/photo-1551232864-3f0890e580d9?auto=format&fit=crop&w=900&q=85" alt="Minimal fashion clothing rack">
-          </div>
-          <div class="product-info">
-            <h3>Ribbed tank dress</h3>
-            <div class="product-meta"><span>Black</span><span>$72</span></div>
-            <div class="swatches"><span class="swatch"></span><span class="swatch white"></span></div>
-            <button class="add-button" type="button">Add to bag</button>
-          </div>
-        </article>
-
-        <article class="product-card">
-          <div class="product-media">
-            <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=900&q=85" alt="Minimal monochrome fashion hoodie">
-          </div>
-          <div class="product-info">
-            <h3>Heavyweight hoodie</h3>
-            <div class="product-meta"><span>Grey</span><span>$96</span></div>
-            <div class="swatches"><span class="swatch gray"></span><span class="swatch"></span></div>
-            <button class="add-button" type="button">Add to bag</button>
-          </div>
-        </article>
-
-        <article class="product-card">
-          <div class="product-media">
-            <img src="https://images.unsplash.com/photo-1520367445093-50dc08a59d9d?auto=format&fit=crop&w=900&q=85" alt="Minimal leather bag">
-          </div>
-          <div class="product-info">
-            <h3>Square leather tote</h3>
-            <div class="product-meta"><span>Black</span><span>$124</span></div>
-            <div class="swatches"><span class="swatch"></span><span class="swatch white"></span></div>
-            <button class="add-button" type="button">Add to bag</button>
-          </div>
-        </article>
+      <div class="product-grid" id="denim-products-grid" data-home-products="denim">
+        <p class="home-products-status">Loading denim products...</p>
       </div>
     </section>
 
@@ -373,6 +280,7 @@
   <script src="js/products.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/account-link.js"></script>
   <script src="js/checkout.js"></script>
   <script src="js/app.js"></script>
 </body>

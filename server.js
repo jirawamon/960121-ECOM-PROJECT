@@ -17,6 +17,19 @@ const pool = mysql.createPool({
 app.use(express.json());
 app.use(express.static(__dirname));
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    res.sendStatus(204);
+    return;
+  }
+
+  next();
+});
+
 const promptPayPhone = "0931498129";
 
 const createAuthToken = (userId) => {
@@ -24,11 +37,101 @@ const createAuthToken = (userId) => {
   return `${userId}.${randomPart}`;
 };
 
+const formatDateOnly = (value) => {
+  if (!value) {
+    return "";
+  }
+
+  if (value instanceof Date) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  return String(value).slice(0, 10);
+};
+
 const formatUser = (user) => ({
   id: user.user_id,
   firstName: user.first_name,
   lastName: user.last_name,
   email: user.email,
+  phoneRegion: user.phone_region || "TH",
+  phoneNumber: user.phone_number || "",
+  birthday: formatDateOnly(user.birthday),
+});
+
+let userProfileColumnsReady = false;
+let userSavedItemsTableReady = false;
+
+const ensureUserProfileColumns = async () => {
+  if (userProfileColumnsReady) {
+    return;
+  }
+
+  const [columns] = await pool.query(
+    `SELECT COLUMN_NAME
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = 'User_account'
+       AND COLUMN_NAME IN ('phone_region', 'phone_number', 'birthday')`
+  );
+  const existingColumns = new Set(columns.map((column) => column.COLUMN_NAME));
+  const changes = [];
+
+  if (!existingColumns.has("phone_region")) {
+    changes.push("ADD COLUMN phone_region VARCHAR(8) NULL");
+  }
+
+  if (!existingColumns.has("phone_number")) {
+    changes.push("ADD COLUMN phone_number VARCHAR(32) NULL");
+  }
+
+  if (!existingColumns.has("birthday")) {
+    changes.push("ADD COLUMN birthday DATE NULL");
+  }
+
+  if (changes.length) {
+    await pool.query(`ALTER TABLE \`User_account\` ${changes.join(", ")}`);
+  }
+
+  userProfileColumnsReady = true;
+};
+
+const ensureUserSavedItemsTable = async () => {
+  if (userSavedItemsTableReady) {
+    return;
+  }
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS \`User_saved_item\` (
+      saved_item_id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      product_id VARCHAR(64) NOT NULL,
+      product_name VARCHAR(255) NOT NULL,
+      variant VARCHAR(255) NULL,
+      price DECIMAL(10, 2) NOT NULL DEFAULT 0,
+      image_url TEXT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      UNIQUE KEY user_product_variant_unique (user_id, product_id, variant),
+      INDEX user_saved_item_user_idx (user_id)
+    )
+  `);
+
+  userSavedItemsTableReady = true;
+};
+
+const formatSavedItem = (item) => ({
+  id: item.saved_item_id,
+  userId: item.user_id,
+  productId: item.product_id,
+  name: item.product_name,
+  variant: item.variant || "",
+  price: Number(item.price) || 0,
+  image: item.image_url || "",
+  createdAt: item.created_at,
 });
 
 const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
@@ -138,6 +241,7 @@ app.post("/api/register", async (req, res) => {
 
 app.post("/api/login", async (req, res) => {
   try {
+    await ensureUserProfileColumns();
     const email = normalizeEmail(req.body.email);
     const password = String(req.body.password || "");
 
@@ -146,7 +250,7 @@ app.post("/api/login", async (req, res) => {
     }
 
     const [users] = await pool.query(
-      "SELECT user_id, first_name, last_name, email FROM `User_account` WHERE email = ? AND password = ? LIMIT 1",
+      "SELECT user_id, first_name, last_name, email, phone_region, phone_number, birthday FROM `User_account` WHERE email = ? AND password = ? LIMIT 1",
       [email, password]
     );
 
@@ -167,13 +271,232 @@ app.post("/api/login", async (req, res) => {
 
 app.get("/api/users", async (req, res) => {
   try {
+    await ensureUserProfileColumns();
     const [rows] = await pool.query(
-      "SELECT user_id, first_name, last_name, email FROM `User_account` ORDER BY user_id DESC"
+      "SELECT user_id, first_name, last_name, email, phone_region, phone_number, birthday FROM `User_account` ORDER BY user_id DESC"
     );
     res.json(rows);
   } catch (error) {
     console.error("Failed to load users:", error);
     res.status(500).json({ message: "Failed to load users" });
+  }
+});
+
+app.get("/api/users/:id", async (req, res) => {
+  try {
+    await ensureUserProfileColumns();
+    const userId = toInteger(req.params.id);
+
+    if (!userId) {
+      return res.status(400).json({ message: "Valid user id is required." });
+    }
+
+    const [users] = await pool.query(
+      "SELECT user_id, first_name, last_name, email, phone_region, phone_number, birthday FROM `User_account` WHERE user_id = ? LIMIT 1",
+      [userId]
+    );
+
+    if (!users.length) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.json(formatUser(users[0]));
+  } catch (error) {
+    console.error("Failed to load user profile:", error);
+    res.status(500).json({ message: "Failed to load user profile" });
+  }
+});
+
+app.patch("/api/users/:id", async (req, res) => {
+  try {
+    await ensureUserProfileColumns();
+    const userId = toInteger(req.params.id);
+    const firstName = String(req.body.firstName || "").trim();
+    const lastName = String(req.body.lastName || "").trim();
+    const email = normalizeEmail(req.body.email);
+    const phoneRegion = String(req.body.phoneRegion || "TH").trim().toUpperCase();
+    const phoneNumber = String(req.body.phoneNumber || "").replace(/\D/g, "").slice(0, 20);
+    const birthday = String(req.body.birthday || "").trim();
+    const birthdayValue = birthday ? birthday.slice(0, 10) : null;
+
+    if (!userId || !firstName || !lastName || !email) {
+      return res.status(400).json({ message: "firstName, lastName, and email are required." });
+    }
+
+    const [emailUsers] = await pool.query(
+      "SELECT user_id FROM `User_account` WHERE email = ? AND user_id <> ? LIMIT 1",
+      [email, userId]
+    );
+
+    if (emailUsers.length) {
+      return res.status(409).json({ message: "This email is already registered." });
+    }
+
+    await pool.query(
+      "UPDATE `User_account` SET first_name = ?, last_name = ?, email = ?, phone_region = ?, phone_number = ?, birthday = ? WHERE user_id = ?",
+      [firstName, lastName, email, phoneRegion, phoneNumber, birthdayValue, userId]
+    );
+
+    const [users] = await pool.query(
+      "SELECT user_id, first_name, last_name, email, phone_region, phone_number, birthday FROM `User_account` WHERE user_id = ? LIMIT 1",
+      [userId]
+    );
+
+    if (!users.length) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.json({ success: true, user: formatUser(users[0]) });
+  } catch (error) {
+    console.error("Failed to update user profile:", error);
+    res.status(500).json({ message: "Failed to update profile" });
+  }
+});
+
+app.patch("/api/users/:id/password", async (req, res) => {
+  try {
+    const userId = toInteger(req.params.id);
+    const currentPassword = String(req.body.currentPassword || "");
+    const newPassword = String(req.body.newPassword || "");
+
+    if (!userId || !currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Current password and new password are required." });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: "New password must be at least 8 characters." });
+    }
+
+    const [users] = await pool.query(
+      "SELECT user_id FROM `User_account` WHERE user_id = ? AND password = ? LIMIT 1",
+      [userId, currentPassword]
+    );
+
+    if (!users.length) {
+      return res.status(401).json({ message: "Current password is incorrect." });
+    }
+
+    await pool.query(
+      "UPDATE `User_account` SET password = ? WHERE user_id = ?",
+      [newPassword, userId]
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Failed to update password:", error);
+    res.status(500).json({ message: "Failed to update password" });
+  }
+});
+
+app.get("/api/users/:id/orders", async (req, res) => {
+  try {
+    const userId = toInteger(req.params.id);
+
+    if (!userId) {
+      return res.status(400).json({ message: "Valid user id is required." });
+    }
+
+    const [rows] = await pool.query(
+      `SELECT checkout_id, user_id, cart_id, address_id, total_price, payment_type, status, created_at
+       FROM \`User_checkout\`
+       WHERE user_id = ?
+       ORDER BY checkout_id DESC`,
+      [userId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Failed to load user orders:", error);
+    res.status(500).json({ message: "Failed to load orders" });
+  }
+});
+
+app.get("/api/users/:id/saved-items", async (req, res) => {
+  try {
+    await ensureUserSavedItemsTable();
+    const userId = toInteger(req.params.id);
+
+    if (!userId) {
+      return res.status(400).json({ message: "Valid user id is required." });
+    }
+
+    const [rows] = await pool.query(
+      `SELECT saved_item_id, user_id, product_id, product_name, variant, price, image_url, created_at
+       FROM \`User_saved_item\`
+       WHERE user_id = ?
+       ORDER BY updated_at DESC, saved_item_id DESC`,
+      [userId]
+    );
+
+    res.json(rows.map(formatSavedItem));
+  } catch (error) {
+    console.error("Failed to load saved items:", error);
+    res.status(500).json({ message: "Failed to load saved items" });
+  }
+});
+
+app.post("/api/users/:id/saved-items", async (req, res) => {
+  try {
+    await ensureUserSavedItemsTable();
+    const userId = toInteger(req.params.id);
+    const productId = String(req.body.productId || req.body.product_id || "").trim();
+    const productName = String(req.body.name || req.body.productName || req.body.product_name || "").trim();
+    const variant = String(req.body.variant || "Favorite item").trim();
+    const price = toNumber(req.body.price) || 0;
+    const image = String(req.body.image || req.body.imageUrl || req.body.image_url || "").trim();
+
+    if (!userId || !productId || !productName) {
+      return res.status(400).json({ message: "user id, productId, and name are required." });
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO \`User_saved_item\` (user_id, product_id, product_name, variant, price, image_url)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         product_name = VALUES(product_name),
+         price = VALUES(price),
+         image_url = VALUES(image_url),
+         updated_at = CURRENT_TIMESTAMP`,
+      [userId, productId, productName, variant, price, image]
+    );
+    const savedItemId = result.insertId;
+    const [rows] = await pool.query(
+      `SELECT saved_item_id, user_id, product_id, product_name, variant, price, image_url, created_at
+       FROM \`User_saved_item\`
+       WHERE user_id = ? AND product_id = ? AND variant = ?
+       LIMIT 1`,
+      [userId, productId, variant]
+    );
+
+    res.status(savedItemId ? 201 : 200).json({
+      success: true,
+      item: rows[0] ? formatSavedItem(rows[0]) : null,
+    });
+  } catch (error) {
+    console.error("Failed to save item:", error);
+    res.status(500).json({ message: "Failed to save item" });
+  }
+});
+
+app.delete("/api/users/:id/saved-items/:savedItemId", async (req, res) => {
+  try {
+    await ensureUserSavedItemsTable();
+    const userId = toInteger(req.params.id);
+    const savedItemId = toInteger(req.params.savedItemId);
+
+    if (!userId || !savedItemId) {
+      return res.status(400).json({ message: "Valid user id and saved item id are required." });
+    }
+
+    await pool.query(
+      "DELETE FROM `User_saved_item` WHERE user_id = ? AND saved_item_id = ?",
+      [userId, savedItemId]
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Failed to remove saved item:", error);
+    res.status(500).json({ message: "Failed to remove saved item" });
   }
 });
 

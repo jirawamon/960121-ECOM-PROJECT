@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Men's Clothing + Accessories | MONOFORM</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="960121-ECOM-PROJECT\styles.css">
 </head>
 <body>
   <div class="promo" role="status" aria-label="Current promotions">
@@ -21,16 +21,12 @@
       <a href="products.html">New</a>
       <a href="products.html">Women</a>
       <a href="products.html">Men</a>
-      <a href="products.html">Underwear</a>
-      <a href="products.html">Collection</a>
-      <a href="index.html">Home</a>
-      <a href="products.html">Sale</a>
+      <a href="products.html">Essentials</a>
     </nav>
     <a class="brand" href="index.html">MONOFORM</a>
     <div class="actions">
-      <a href="products.html">Search</a>
-      <a href="products.html">Account</a>
-      <button class="bag-button" type="button">Bag <span id="bag-count">0</span></button>
+      <a class="action-icon-link action-account" href="index.html" data-account-open aria-label="Account" aria-controls="account-drawer" aria-expanded="false"><span aria-hidden="true"></span></a>
+      <button class="bag-button action-bag" type="button" data-bag-open aria-label="Bag"><span aria-hidden="true"></span><strong id="bag-count">0</strong></button>
     </div>
   </header>
 
@@ -38,27 +34,70 @@
     <section class="catalog-heading" aria-labelledby="catalog-title">
       <div>
         <h1 id="catalog-title">Men's Clothing + Accessories</h1>
-        <nav class="catalog-tabs" aria-label="Product departments">
-          <a href="products.html">Tops</a>
-          <a href="products.html">Bottoms</a>
-          <a href="products.html">Underwear</a>
-          <a href="products.html">Outerwear</a>
-          <a href="products.html">Denim</a>
-        </nav>
       </div>
     </section>
 
     <section class="catalog-controls" aria-label="Catalog controls">
       <label class="catalog-search">
-        <span>Search</span>
+        <span class="sr-only">Search</span>
         <input type="search" name="keyword" placeholder="Search products" data-catalog-filter="keyword" autocomplete="off">
       </label>
       <div class="filter-pills" aria-label="Filters">
-        <button type="button" data-filter-open>Category <span aria-hidden="true">⌄</span></button>
-        <button type="button" data-filter-open>Price <span aria-hidden="true">⌄</span></button>
-        <button type="button" data-filter-open>Color <span aria-hidden="true">⌄</span></button>
-        <button type="button" data-filter-open>Size <span aria-hidden="true">⌄</span></button>
-        <button type="button" data-filter-open>Collection <span aria-hidden="true">⌄</span></button>
+        <label>
+          <span>Category</span>
+          <select data-catalog-filter="category" aria-label="Filter by category">
+            <option value="">All</option>
+            <option value="tops">Tops</option>
+            <option value="bottoms">Bottoms</option>
+            <option value="underwear">Underwear</option>
+            <option value="outerwear">Outerwear</option>
+            <option value="denim">Denim</option>
+            <option value="accessories">Accessories</option>
+          </select>
+        </label>
+        <label>
+          <span>Price</span>
+          <select data-catalog-filter="priceRange" aria-label="Filter by price">
+            <option value="">All</option>
+            <option value="under-50">Under $50</option>
+            <option value="50-75">$50 - $75</option>
+            <option value="75-100">$75 - $100</option>
+            <option value="100-plus">$100+</option>
+          </select>
+        </label>
+        <label>
+          <span>Color</span>
+          <select data-catalog-filter="color" aria-label="Filter by color">
+            <option value="">All</option>
+            <option value="white">White</option>
+            <option value="black">Black</option>
+            <option value="blue">Blue</option>
+            <option value="gray">Gray</option>
+            <option value="green">Green</option>
+            <option value="neutral">Neutral</option>
+          </select>
+        </label>
+        <label>
+          <span>Size</span>
+          <select data-catalog-filter="size" aria-label="Filter by size">
+            <option value="">All</option>
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+          </select>
+        </label>
+        <label>
+          <span>Collection</span>
+          <select data-catalog-filter="collection" aria-label="Filter by collection">
+            <option value="">All</option>
+            <option value="new-arrival">New Arrival</option>
+            <option value="best-seller">Best Seller</option>
+            <option value="sale">Sale</option>
+            <option value="core">Core</option>
+          </select>
+        </label>
         <button type="button" data-filter-open>All Filters <span aria-hidden="true">☰</span></button>
       </div>
       <div class="catalog-sort">
@@ -77,6 +116,7 @@
 
     <section class="catalog-results" aria-label="Product results">
       <div class="product-grid catalog-grid" id="products-grid" aria-live="polite"></div>
+      <p class="catalog-empty" data-catalog-empty hidden>No products match those filters.</p>
       <div class="catalog-loader" data-catalog-loader hidden>Loading more styles...</div>
     </section>
 
@@ -103,6 +143,7 @@
 
   <button class="bag-overlay" type="button" data-bag-close aria-label="Close bag panel"></button>
   <button class="filter-overlay" type="button" data-filter-close aria-label="Close filter panel"></button>
+  <button class="product-detail-overlay" type="button" data-detail-close aria-label="Close product details"></button>
 
   <aside class="filter-drawer" id="filter-drawer" role="dialog" aria-modal="true" aria-labelledby="filter-drawer-title" aria-hidden="true" tabindex="-1">
     <div class="filter-drawer-header">
@@ -114,10 +155,22 @@
         Category
         <select data-catalog-filter="category">
           <option value="">All categories</option>
-          <option value="Men">Men</option>
-          <option value="shirts">Shirts</option>
+          <option value="tops">Tops</option>
+          <option value="bottoms">Bottoms</option>
+          <option value="underwear">Underwear</option>
+          <option value="outerwear">Outerwear</option>
           <option value="denim">Denim</option>
           <option value="accessories">Accessories</option>
+        </select>
+      </label>
+      <label>
+        Price
+        <select data-catalog-filter="priceRange">
+          <option value="">All prices</option>
+          <option value="under-50">Under $50</option>
+          <option value="50-75">$50 - $75</option>
+          <option value="75-100">$75 - $100</option>
+          <option value="100-plus">$100+</option>
         </select>
       </label>
       <label>
@@ -128,11 +181,39 @@
         Max price
         <input type="number" min="0" step="1" placeholder="150" data-catalog-filter="maxPrice">
       </label>
-      <button type="button">Category <span aria-hidden="true">⌄</span></button>
-      <button type="button">Price <span aria-hidden="true">⌄</span></button>
-      <button type="button">Color <span aria-hidden="true">⌄</span></button>
-      <button type="button">Size <span aria-hidden="true">⌄</span></button>
-      <button type="button">Collection <span aria-hidden="true">⌄</span></button>
+      <label>
+        Color
+        <select data-catalog-filter="color">
+          <option value="">All colors</option>
+          <option value="white">White</option>
+          <option value="black">Black</option>
+          <option value="blue">Blue</option>
+          <option value="gray">Gray</option>
+          <option value="green">Green</option>
+          <option value="neutral">Neutral</option>
+        </select>
+      </label>
+      <label>
+        Size
+        <select data-catalog-filter="size">
+          <option value="">All sizes</option>
+          <option value="XS">XS</option>
+          <option value="S">S</option>
+          <option value="M">M</option>
+          <option value="L">L</option>
+          <option value="XL">XL</option>
+        </select>
+      </label>
+      <label>
+        Collection
+        <select data-catalog-filter="collection">
+          <option value="">All collections</option>
+          <option value="new-arrival">New Arrival</option>
+          <option value="best-seller">Best Seller</option>
+          <option value="sale">Sale</option>
+          <option value="core">Core</option>
+        </select>
+      </label>
     </div>
     <div class="filter-drawer-footer">
       <button type="button" data-filter-clear data-filter-close>Clear All</button>
@@ -162,8 +243,90 @@
     </div>
   </aside>
 
+  <aside class="product-detail-drawer" id="product-detail-drawer" role="dialog" aria-modal="true" aria-labelledby="product-detail-title" aria-hidden="true" tabindex="-1">
+    <div class="product-detail-shell" id="product-detail-content"></div>
+  </aside>
+
+  <button class="account-overlay" type="button" data-account-close aria-label="Close account panel"></button>
+
+  <aside class="account-drawer" id="account-drawer" role="dialog" aria-modal="true" aria-labelledby="account-drawer-title" aria-hidden="true" tabindex="-1">
+    <div class="account-drawer-hero">
+      <div>
+        <p class="account-drawer-kicker">My</p>
+        <h2 id="account-drawer-title">Monoform<br>Rewards</h2>
+      </div>
+      <div class="account-benefits" aria-label="Rewards benefits">
+        <span>Earn points</span>
+        <span>Redeem rewards</span>
+        <span>Enjoy exclusive benefits</span>
+        <a href="#account-drawer" data-account-open>See how it works</a>
+      </div>
+      <button class="account-close" type="button" data-account-close aria-label="Close account panel">x</button>
+    </div>
+
+    <div class="account-drawer-body">
+      <div class="account-tabs" role="tablist" aria-label="Account access">
+        <button class="account-tab" type="button" role="tab" aria-selected="false" aria-controls="signin-panel" data-account-tab="signin">Sign in</button>
+        <button class="account-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="signup-panel" data-account-tab="signup">Sign up</button>
+      </div>
+
+      <section class="account-panel" id="signin-panel" role="tabpanel" data-account-panel="signin" hidden>
+        <form class="account-form" data-auth-form="signin">
+          <label>
+            <span>Email*</span>
+            <input type="email" name="email" autocomplete="email" placeholder=" " required>
+          </label>
+          <label>
+            <span>Password*</span>
+            <input type="password" name="password" autocomplete="current-password" placeholder=" " required>
+          </label>
+          <label class="account-check">
+            <input type="checkbox" name="remember">
+            <span>Keep me signed in on this device.</span>
+          </label>
+          <button class="account-submit" type="submit">Sign in</button>
+          <a class="account-secondary-link" href="index.html">Forgot password?</a>
+          <p class="account-status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="account-panel is-active" id="signup-panel" role="tabpanel" data-account-panel="signup">
+        <form class="account-form" data-auth-form="signup">
+          <div class="account-form-grid">
+            <label>
+              <span>First Name*</span>
+              <input type="text" name="firstName" autocomplete="given-name" placeholder=" " required>
+            </label>
+            <label>
+              <span>Last Name*</span>
+              <input type="text" name="lastName" autocomplete="family-name" placeholder=" " required>
+            </label>
+          </div>
+          <label>
+            <span>Email*</span>
+            <input type="email" name="email" autocomplete="email" placeholder=" " required>
+          </label>
+          <label>
+            <span>Create a Password*</span>
+            <input type="password" name="password" autocomplete="new-password" minlength="8" placeholder=" " required>
+          </label>
+          <label class="account-check">
+            <input type="checkbox" name="marketing" checked>
+            <span>I would like to receive updates on the latest products and promotions via email or other channels.</span>
+          </label>
+          <button class="account-submit" type="submit">Create account</button>
+          <p class="account-terms">By clicking the Create account button, I agree to the Monoform Rewards Terms, Privacy Policy, and Terms and Conditions.</p>
+          <p class="account-status" aria-live="polite"></p>
+        </form>
+      </section>
+    </div>
+  </aside>
+
   <script src="js/api.js"></script>
   <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/account-link.js"></script>
+  <script src="js/app.js"></script>
   <script src="js/catalog.js?v=20260601b"></script>
 </body>
 </html>

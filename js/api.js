@@ -1,7 +1,10 @@
 (function (window) {
   "use strict";
 
-  const API_BASE_URL = "";
+  const RAILWAY_API_BASE_URL = "https://thekorachan-website-production.up.railway.app";
+  const isLocalHost = ["localhost", "127.0.0.1", ""].includes(window.location.hostname);
+  const isRailwayHost = window.location.hostname.includes("up.railway.app");
+  const API_BASE_URL = isLocalHost || isRailwayHost ? "" : RAILWAY_API_BASE_URL;
   const AUTH_TOKEN_KEY = "auth_token";
   const AUTH_USER_KEY = "auth_user";
 
@@ -63,11 +66,13 @@
     created_at: checkout.createdAt,
   });
 
+  const getApiUrl = (endpoint) => `${API_BASE_URL}${endpoint}`;
+
   const request = async (endpoint, options = {}) => {
     const token = getAuthToken();
     const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(getApiUrl(endpoint), {
       headers: {
         "Content-Type": "application/json",
         ...authHeaders,
@@ -89,6 +94,7 @@
   window.api = {
     getAuthToken,
     getAuthUser,
+    getApiUrl,
     setAuthSession,
     clearAuthSession,
 
@@ -107,6 +113,45 @@
       return request("/api/login", {
         method: "POST",
         body: JSON.stringify(credentials),
+      });
+    },
+
+    getUserProfile(userId) {
+      return request(`/api/users/${encodeURIComponent(userId)}`);
+    },
+
+    updateUserProfile(userId, profile) {
+      return request(`/api/users/${encodeURIComponent(userId)}`, {
+        method: "PATCH",
+        body: JSON.stringify(profile),
+      });
+    },
+
+    updateUserPassword(userId, passwordDetails) {
+      return request(`/api/users/${encodeURIComponent(userId)}/password`, {
+        method: "PATCH",
+        body: JSON.stringify(passwordDetails),
+      });
+    },
+
+    getUserOrders(userId) {
+      return request(`/api/users/${encodeURIComponent(userId)}/orders`);
+    },
+
+    getUserSavedItems(userId) {
+      return request(`/api/users/${encodeURIComponent(userId)}/saved-items`);
+    },
+
+    saveUserItem(userId, item) {
+      return request(`/api/users/${encodeURIComponent(userId)}/saved-items`, {
+        method: "POST",
+        body: JSON.stringify(item),
+      });
+    },
+
+    removeUserSavedItem(userId, savedItemId) {
+      return request(`/api/users/${encodeURIComponent(userId)}/saved-items/${encodeURIComponent(savedItemId)}`, {
+        method: "DELETE",
       });
     },
 

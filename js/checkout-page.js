@@ -11,15 +11,7 @@
     currency: "THB",
   });
 
-  const fallbackItem = {
-    id: "demo-logo-tee",
-    name: "1990 Logo Graphic Relaxed T-Shirt",
-    variant: "Grey Heather / L",
-    price: 44.25,
-    priceText: "$44.25",
-    image: "https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=500&q=85",
-    quantity: 1,
-  };
+  const fallbackImage = "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=500&q=85";
 
   let selectedPaymentMethod = "card";
   let activePromptPayCharge = null;
@@ -64,8 +56,7 @@
 
   const getCartItems = () => {
     const items = window.cartState && Array.isArray(window.cartState.items) ? window.cartState.items : [];
-    const savedCart = window.localStorage.getItem("shopping_cart");
-    return items.length ? items : savedCart ? [] : [fallbackItem];
+    return items;
   };
 
   const formatMoney = (value) => currency.format(Number(value) || 0);
@@ -611,7 +602,7 @@
       return;
     }
 
-    const response = await fetch(`/api/payments/promptpay/${encodeURIComponent(activePromptPayCharge.id)}`);
+    const response = await fetch(window.api.getApiUrl(`/api/payments/promptpay/${encodeURIComponent(activePromptPayCharge.id)}`));
 
     if (!response.ok) {
       return;
@@ -643,7 +634,7 @@
       throw new Error("PromptPay total must be between THB20.00 and THB150,000.00.");
     }
 
-    const response = await fetch("/api/payments/promptpay", {
+    const response = await fetch(window.api.getApiUrl("/api/payments/promptpay"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -680,6 +671,60 @@
     return addresses[0];
   };
 
+  const setCheckoutCountry = (iso = "TH") => {
+    const country = findCountry(iso) || findCountry("TH");
+
+    if (!country) {
+      return;
+    }
+
+    const countryIso = getField("phoneCountryIso");
+    const dialCode = getField("phoneDialCode");
+    const selected = document.querySelector("[data-country-selected]");
+
+    if (countryIso) countryIso.value = country.iso;
+    if (dialCode) dialCode.value = country.dialCode;
+    if (selected) selected.textContent = getCountryLabel(country);
+    updatePhoneFullNumber();
+  };
+
+  const autofillCheckoutFromAccount = async () => {
+    const user = getCurrentUser();
+    const form = getCheckoutForm();
+
+    if (!user?.id || !form) {
+      return;
+    }
+
+    try {
+      const profile = window.api.getUserProfile ? await window.api.getUserProfile(user.id) : user;
+      const address = await getNewestSavedAddress(user.id);
+
+      if (profile) {
+        window.api.setAuthSession({ user: profile, token: window.api.getAuthToken() });
+        if (form.elements.email && !form.elements.email.value) form.elements.email.value = profile.email || "";
+        if (form.elements.firstName && !form.elements.firstName.value) form.elements.firstName.value = profile.firstName || "";
+        if (form.elements.lastName && !form.elements.lastName.value) form.elements.lastName.value = profile.lastName || "";
+        if (form.elements.phone && !form.elements.phone.value) form.elements.phone.value = String(profile.phoneNumber || "").replace(/\D/g, "");
+        setCheckoutCountry(profile.phoneRegion || "TH");
+      }
+
+      if (address) {
+        if (form.elements.address1 && !form.elements.address1.value) form.elements.address1.value = address.address_line || address.addressLine || "";
+        if (form.elements.city && !form.elements.city.value) form.elements.city.value = address.city || "";
+        if (form.elements.state && !form.elements.state.value) form.elements.state.value = address.province || "";
+        if (form.elements.postalCode && !form.elements.postalCode.value) form.elements.postalCode.value = address.postal_code || address.postalCode || "";
+        if (form.elements.phone && !form.elements.phone.value) form.elements.phone.value = String(address.phone || "").replace(/\D/g, "");
+      }
+
+      updatePhoneFullNumber();
+      validateCheckoutForm(false);
+      updatePlaceOrderState();
+    } catch (error) {
+      setCheckoutStatus("Sign in and save an address to autofill checkout.");
+    }
+  };
+
   const createBackendCheckout = async (user, address, items) => {
     const total = getSubtotal(items);
     const cart = await window.api.createUserCart({
@@ -693,7 +738,7 @@
     }
 
     await Promise.all(items.map((item) => {
-      const productId = Number(item.id);
+      const productId = Number(item.baseId || item.productId || item.product_id || item.id);
 
       if (!Number.isInteger(productId)) {
         throw new Error(`Invalid product id for ${item.name || "cart item"}.`);
@@ -953,6 +998,7 @@
     const phone = getField("phone");
 
     setupCountrySelector();
+    autofillCheckoutFromAccount();
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -1103,7 +1149,7 @@
       return;
     }
 
-    window.cartState.items = items.filter((item) => item.id !== fallbackItem.id);
+    window.cartState.items = items;
     window.cartService.saveCart();
     window.cartService.updateBagCount();
   };
@@ -1158,22 +1204,29 @@
       const quantity = Number(item.quantity) || 1;
       const price = Number(item.price) || 0;
       const lineTotal = price * quantity;
-      const comparePrice = price > 0 ? price * 1.3 : 0;
+      const comparePrice = Number(item.comparePrice || item.compare_price) || price;
+      const hasDiscount = comparePrice > price;
+      const priceMarkup = hasDiscount
+        ? `<span>${formatMoney(comparePrice)}</span> ${formatMoney(price)}`
+        : formatMoney(price);
+      const discountMarkup = hasDiscount
+        ? `<p class="bag-item-discount">30% Off New Arrivals <button type="button" data-promo-details>Details</button></p>`
+        : "";
 
       return `
         <article class="bag-line-item" data-cart-id="${escapeHtml(item.id)}">
           <a class="bag-item-image" href="products.html">
-            <img src="${escapeHtml(item.image || fallbackItem.image)}" alt="${escapeHtml(item.name)}">
+            <img src="${escapeHtml(item.image || fallbackImage)}" alt="${escapeHtml(item.name)}">
           </a>
           <div class="bag-item-details">
             <div class="bag-item-heading">
               <h2>${escapeHtml(item.name)}</h2>
               <strong>${formatMoney(lineTotal)}</strong>
             </div>
-            <p class="bag-item-price"><span>${formatMoney(comparePrice)}</span> ${formatMoney(price)}</p>
+            <p class="bag-item-price">${priceMarkup}</p>
             <p>${escapeHtml(item.variant || "Core / Regular")}</p>
             <p>${quantity} style selected</p>
-            <p class="bag-item-discount">30% Off New Arrivals <button type="button" data-promo-details>Details</button></p>
+            ${discountMarkup}
             <p class="stock-line">In Stock: Ships in 1-2 business days</p>
           </div>
           <div class="quantity-control" aria-label="Quantity for ${escapeHtml(item.name)}">
@@ -1182,8 +1235,6 @@
             <button type="button" data-quantity="increase" aria-label="Increase quantity">+</button>
           </div>
           <div class="bag-item-actions">
-            <button type="button" data-edit-item>Edit</button>
-            <button type="button" data-save-later>Save for Later</button>
             <button type="button" data-remove-item>Remove</button>
           </div>
         </article>
@@ -1194,10 +1245,6 @@
   };
 
   const updateQuantity = (id, direction) => {
-    if (id === fallbackItem.id) {
-      return;
-    }
-
     const currentItem = window.cartState.items.find((item) => item.id === id);
 
     if (!currentItem) {
@@ -1229,10 +1276,6 @@
   };
 
   const removeItem = (id) => {
-    if (id === fallbackItem.id) {
-      return;
-    }
-
     const removedItem = window.cartState.items.find((item) => item.id === id);
 
     saveRealCart(window.cartState.items.filter((item) => item.id !== id));
@@ -1244,10 +1287,6 @@
   };
 
   const requestRemoveItem = async (id) => {
-    if (id === fallbackItem.id) {
-      return;
-    }
-
     const item = window.cartState.items.find((cartItem) => cartItem.id === id);
 
     if (!item) {
@@ -1345,7 +1384,10 @@
       quantity: 1,
     };
 
-    window.cartService.addItem(product);
+    if (!window.cartService.addItem(product)) {
+      return;
+    }
+
     renderItems();
     setCheckoutStatus(`${product.name} added to your bag.`);
   };
@@ -1425,19 +1467,6 @@
 
     if (quantityButton) {
       updateQuantity(id, quantityButton.dataset.quantity);
-      return;
-    }
-
-    if (event.target.closest("[data-edit-item]")) {
-      event.preventDefault();
-      showCheckoutDialog("Edit item", "Size, color, and style editing is not connected yet. You can adjust quantity or remove the item from your bag.");
-      return;
-    }
-
-    if (event.target.closest("[data-save-later]")) {
-      event.preventDefault();
-      setCheckoutStatus("Item saved for later. Saved item storage is not connected yet.");
-      showCheckoutDialog("Saved for later", "This item has been marked as saved for later in this preview.");
       return;
     }
 

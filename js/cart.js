@@ -60,6 +60,10 @@
       0
     );
 
+  const isSignedIn = () => Boolean(
+    window.authService?.isLoggedIn?.() || window.api?.getAuthToken?.()
+  );
+
   const escapeHtml = (value) =>
     String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -98,6 +102,17 @@
     toastTimer = window.setTimeout(() => {
       toast.classList.remove("is-visible");
     }, 2400);
+  };
+
+  const requestAccountBeforeAdd = () => {
+    showToast("Please sign in or create an account before adding to bag.", "!");
+
+    if (document.querySelector(".account-drawer")) {
+      document.querySelector("[data-account-open]")?.click();
+      return false;
+    }
+
+    return false;
   };
 
   const ensureRemoveDialog = () => {
@@ -304,7 +319,11 @@
 
   const addItem = (product) => {
     if (!product || !product.id) {
-      return;
+      return false;
+    }
+
+    if (!isSignedIn()) {
+      return requestAccountBeforeAdd();
     }
 
     const existingItem = window.cartState.items.find((item) => item.id === product.id);
@@ -322,7 +341,10 @@
     updateBagCount();
     renderBagDrawer();
     showToast(`${product.name} added to bag.`, "✅");
+    return true;
   };
+
+  const requireAccountBeforeAdd = () => isSignedIn() || requestAccountBeforeAdd();
 
   const clearCart = () => {
     window.cartState.items = [];
@@ -332,6 +354,12 @@
   };
 
   document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-bag-open]")) {
+      event.preventDefault();
+      openBagDrawer();
+      return;
+    }
+
     if (event.target.closest("[data-bag-close]")) {
       event.preventDefault();
       closeBagDrawer();
@@ -376,10 +404,12 @@
     closeBagDrawer,
     getItemCount,
     getSubtotal,
+    isSignedIn,
     loadCart,
     openBagDrawer,
     removeItem,
     renderBagDrawer,
+    requireAccountBeforeAdd,
     requestRemoveItem,
     saveCart,
     showToast,
@@ -390,4 +420,6 @@
   window.cartConfirm = {
     confirmRemove,
   };
+
+  updateBagCount();
 })(window, document);

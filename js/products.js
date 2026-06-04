@@ -41,6 +41,15 @@
     return `$${price.toLocaleString("en-US")}`;
   };
 
+  const getProductSearchText = (product) => [
+    product.name,
+    product.variant,
+    product.category,
+    product.description,
+  ].join(" ").toLowerCase();
+
+  const isDenimProduct = (product) => /denim|jean|chambray|indigo|wash/.test(getProductSearchText(product));
+
   const normalizeProduct = (product, index) => {
     const name = product.name || `Product ${index + 1}`;
     const id = product.id || product.slug || slugify(name) || `product-${index + 1}`;
@@ -54,6 +63,8 @@
       price: Number(product.price) || normalizePrice(priceText),
       priceText,
       image: getImageUrl(product),
+      category: product.category || "",
+      description: product.description || "",
       quantity: 1,
     };
   };
@@ -129,15 +140,38 @@
     return getProductFromCard(card, cards.indexOf(card));
   };
 
-  const renderProducts = (products) => {
-    const grid = document.querySelector(".product-grid");
+  const renderProductGrid = (grid, products, emptyMessage) => {
+    if (!grid) {
+      return false;
+    }
 
-    if (!grid || !Array.isArray(products) || !products.length) {
+    if (!Array.isArray(products) || !products.length) {
+      grid.innerHTML = `<p class="home-products-status">${escapeHtml(emptyMessage)}</p>`;
       return false;
     }
 
     grid.innerHTML = products.map(createProductCard).join("");
-    updateProductCount(products);
+    return true;
+  };
+
+  const renderProducts = (products) => {
+    const grid = document.querySelector("#products-grid");
+    const denimGrid = document.querySelector("#denim-products-grid");
+    const normalizedProducts = Array.isArray(products)
+      ? products.map(normalizeProduct)
+      : [];
+    const denimProducts = normalizedProducts.filter(isDenimProduct);
+
+    if (!grid || !normalizedProducts.length) {
+      renderProductGrid(grid, [], "No database products are available right now.");
+      renderProductGrid(denimGrid, [], "No denim products are available in the database yet.");
+      updateProductCount([]);
+      return false;
+    }
+
+    renderProductGrid(grid, normalizedProducts, "No database products are available right now.");
+    renderProductGrid(denimGrid, denimProducts, "No denim products are available in the database yet.");
+    updateProductCount(normalizedProducts);
 
     return true;
   };
@@ -157,14 +191,12 @@
         return products.map(normalizeProduct);
       }
     } catch (error) {
-      const domProducts = getProductsFromDom();
-      updateProductCount(domProducts);
-      return domProducts;
+      renderProducts([]);
+      return [];
     }
 
-    const domProducts = getProductsFromDom();
-    updateProductCount(domProducts);
-    return domProducts;
+    renderProducts([]);
+    return [];
   };
 
   window.productService = {

@@ -18,13 +18,20 @@
       return;
     }
 
+    if (!window.productService?.findCardProduct) {
+      return;
+    }
+
     const product = window.productService.findCardProduct(button);
 
     if (!product) {
       return;
     }
 
-    window.cartService.addItem(product);
+    if (!window.cartService.addItem(product)) {
+      return;
+    }
+
     window.cartService.openBagDrawer();
     showAddedState(button);
   };
@@ -77,7 +84,13 @@
       return;
     }
 
-    bagButton.addEventListener("click", () => {
+    bagButton.addEventListener("click", (event) => {
+      if (bagButton.hasAttribute("data-bag-open")) {
+        event.preventDefault();
+        window.cartService?.openBagDrawer();
+        return;
+      }
+
       window.location.href = "checkout.html";
     });
   };
@@ -92,7 +105,9 @@
     const openTriggers = document.querySelectorAll("[data-account-open]");
     const closeTriggers = document.querySelectorAll("[data-account-close]");
     const accountNavTrigger = document.querySelector("[data-account-open][aria-controls='account-drawer']");
-    const defaultAccountLabel = accountNavTrigger ? accountNavTrigger.textContent : "Account";
+    const defaultAccountLabel = accountNavTrigger
+      ? accountNavTrigger.getAttribute("aria-label") || accountNavTrigger.textContent || "Account"
+      : "Account";
     const accountTabs = drawer.querySelector(".account-tabs");
     const tabButtons = drawer.querySelectorAll("[data-account-tab]");
     const panels = drawer.querySelectorAll("[data-account-panel]");
@@ -264,11 +279,17 @@
       const user = window.authService.getCurrentUser();
       const isLoggedIn = window.authService.isLoggedIn();
       const displayName = getUserDisplayName(user);
+      const accountLabel = isLoggedIn && displayName
+        ? `Hi, ${displayName.split(" ")[0]}`
+        : defaultAccountLabel;
 
       if (accountNavTrigger) {
-        accountNavTrigger.textContent = isLoggedIn && displayName
-          ? `Hi, ${displayName.split(" ")[0]}`
-          : defaultAccountLabel;
+        if (accountNavTrigger.classList.contains("action-account")) {
+          accountNavTrigger.setAttribute("aria-label", accountLabel);
+          accountNavTrigger.setAttribute("title", accountLabel);
+        } else {
+          accountNavTrigger.textContent = accountLabel;
+        }
       }
 
       if (accountTabs) {
@@ -462,7 +483,11 @@
     setupAccountDrawer();
     setupBagNavigation();
     document.addEventListener("click", handleProductClick);
-    await window.productService.loadProducts();
+
+    if (window.productService?.loadProducts) {
+      await window.productService.loadProducts();
+    }
+
     window.cartService.updateBagCount();
     setupSignupForm();
     setupHeaderVisibility();
